@@ -1,0 +1,54 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { SKILLS } from '../constants';
+import { Skill } from '../types';
+
+const Skills: React.FC = () => {
+  const categories = ['Core', 'System', 'Tools', 'Other'];
+
+  return (
+    <section id="skills" className="py-20 bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-white">技术栈与能力</h2>
+          <p className="mt-4 text-slate-400">深耕 Unity 生态，追求极致性能与架构之美</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {categories.map((cat) => (
+            <div key={cat} className="bg-slate-900/50 p-6 rounded-xl border border-slate-800">
+              <h3 className="text-xl font-semibold text-game-secondary mb-6 border-b border-slate-800 pb-2">
+                {cat}
+              </h3>
+              <div className="space-y-4">
+                {SKILLS.filter(s => s.category === cat).map((skill) => (
+                  <SkillBar key={skill.name} skill={skill} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const SkillBar: React.FC<{ skill: Skill }> = ({ skill }) => (
+  <div>
+    <div className="flex justify-between mb-1">
+      <span className="text-slate-300 font-medium text-sm">{skill.name}</span>
+      <span className="text-slate-500 text-xs">{skill.level}%</span>
+    </div>
+    <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+      <motion.div
+        initial={{ width: 0 }}
+        whileInView={{ width: `${skill.level}%` }}
+        viewport={{ once: true }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="bg-gradient-to-r from-game-accent to-game-secondary h-2 rounded-full"
+      />
+    </div>
+  </div>
+);
+
+export default Skills;
