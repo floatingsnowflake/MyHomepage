@@ -33,6 +33,18 @@ export const ASSETS = {
   }
 };
 
+// 3D Universe Gallery Images
+// Put your project screenshots in /public/assets/images/universe/
+export const PROJECT_UNIVERSE = [
+  { url: "/assets/images/universe/proj_1.jpg", title: "Project Alpha" },
+  { url: "/assets/images/universe/proj_2.jpg", title: "Project Beta" },
+  { url: "/assets/images/universe/proj_3.jpg", title: "UI Design System" },
+  { url: "/assets/images/universe/proj_4.jpg", title: "Shader Works" },
+  { url: "/assets/images/universe/proj_5.jpg", title: "Character Setup" },
+  { url: "/assets/images/universe/proj_6.jpg", title: "Environment Art" },
+  // Add as many as you want, the 3D system handles them
+];
+
 export const PERSONAL_INFO = {
   name: "Unity Senior Engineer", 
   title: "资深 Unity 游戏开发工程师",

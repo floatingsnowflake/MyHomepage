@@ -5,6 +5,7 @@ import ProjectMinghai from './components/ProjectMinghai';
 import Skills from './components/Skills';
 import ExperienceTimeline from './components/ExperienceTimeline';
 import FreelanceStats from './components/FreelanceStats';
+import ProjectUniverse from './components/ProjectUniverse';
 import Gallery from './components/Gallery';
 import Footer from './components/Footer';
 
@@ -18,6 +19,7 @@ function App() {
         <Skills />
         <ExperienceTimeline />
         <FreelanceStats />
+        <ProjectUniverse />
         <Gallery />
       </main>
       <Footer />
