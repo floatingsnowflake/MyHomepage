@@ -1,18 +1,19 @@
 import React, { useRef, useState, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Image, Stars, Float, Text } from '@react-three/drei';
+import { Image, Stars, Float, Sparkles, OrbitControls } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { PROJECT_UNIVERSE } from '../constants';
-import { X } from 'lucide-react';
+import { X, Tag, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Types ---
 interface ImageItemProps {
-  url: string;
+  data: typeof PROJECT_UNIVERSE[0];
   position: [number, number, number];
   rotation: [number, number, number];
   index: number;
-  onClick: (url: string) => void;
+  onClick: (data: typeof PROJECT_UNIVERSE[0]) => void;
 }
 
 // --- Error Boundary for 3D Content ---
@@ -41,12 +42,12 @@ const FallbackPlaceholder = ({ position, rotation }: { position: any, rotation: 
   </mesh>
 );
 
-const FloatingImage = ({ url, position, rotation, index, onClick }: ImageItemProps) => {
+const FloatingImage = ({ data, position, rotation, index, onClick }: ImageItemProps) => {
   const ref = useRef<any>(null);
   const [hovered, setHover] = useState(false);
 
   useFrame((state) => {
-    // Subtle float animation independent of the group
+    // Subtle float animation
     if (ref.current) {
         ref.current.position.y += Math.sin(state.clock.elapsedTime + index * 100) * 0.002;
     }
@@ -55,26 +56,32 @@ const FloatingImage = ({ url, position, rotation, index, onClick }: ImageItemPro
   return (
     <group position={position} rotation={rotation}>
       <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
+        {/* Glow Frame */}
+        <mesh position={[0, 0, -0.05]} scale={hovered ? 1.05 : 1}>
+           <planeGeometry args={[2.1, 1.2]} />
+           <meshBasicMaterial color={hovered ? "#8b5cf6" : "#334155"} transparent opacity={0.5} />
+        </mesh>
+
         <Image 
             ref={ref}
-            url={url} 
+            url={data.url} 
             transparent 
             side={THREE.DoubleSide}
-            scale={hovered ? [2.4, 1.35] : [2, 1.125]} 
+            scale={hovered ? [2.2, 1.23] : [2, 1.125]} 
             onPointerOver={() => { document.body.style.cursor = 'pointer'; setHover(true); }}
             onPointerOut={() => { document.body.style.cursor = 'auto'; setHover(false); }}
             onClick={(e) => {
                 e.stopPropagation();
-                onClick(url);
+                onClick(data);
             }}
-            toneMapped={false}
+            toneMapped={false} // Important for bloom
         />
       </Float>
     </group>
   );
 };
 
-const GalaxyScene = ({ onItemClick }: { onItemClick: (url: string) => void }) => {
+const GalaxyScene = ({ onItemClick }: { onItemClick: (data: typeof PROJECT_UNIVERSE[0]) => void }) => {
   const groupRef = useRef<THREE.Group>(null);
   
   // Create random spherical positions
@@ -89,25 +96,21 @@ const GalaxyScene = ({ onItemClick }: { onItemClick: (url: string) => void }) =>
       const z = radius * Math.cos(phi);
 
       return {
-        url: item.url,
+        data: item,
         position: [x * 1.5, y * 1.5 + (Math.random() - 0.5) * 2, z] as [number, number, number],
         rotation: [0, -theta, 0] as [number, number, number]
       };
     });
   }, []);
 
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-        groupRef.current.rotation.y += delta * 0.05;
-    }
-  });
-
   return (
     <>
         <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-        <fog attach="fog" args={['#0f172a', 5, 20]} />
+        
+        {/* Particle Effects */}
+        <Sparkles count={200} scale={12} size={2} speed={0.4} opacity={0.5} color="#8b5cf6" />
         
         <group ref={groupRef}>
             {items.map((item, i) => (
@@ -118,7 +121,7 @@ const GalaxyScene = ({ onItemClick }: { onItemClick: (url: string) => void }) =>
                   <Suspense fallback={<FallbackPlaceholder position={item.position} rotation={[0, Math.atan2(item.position[0], item.position[2]), 0]} />}>
                     <FloatingImage 
                         index={i}
-                        url={item.url}
+                        data={item.data}
                         position={item.position}
                         rotation={[0, Math.atan2(item.position[0], item.position[2]), 0]} 
                         onClick={onItemClick}
@@ -134,58 +137,106 @@ const GalaxyScene = ({ onItemClick }: { onItemClick: (url: string) => void }) =>
 // --- Main Component ---
 
 const ProjectUniverse: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<typeof PROJECT_UNIVERSE[0] | null>(null);
 
   return (
-    <section id="project-universe" className="relative h-[80vh] w-full bg-slate-950 overflow-hidden border-t border-slate-900">
+    <section id="project-universe" className="relative h-[85vh] w-full bg-slate-950 overflow-hidden border-t border-slate-900">
         <div className="absolute top-8 left-0 w-full z-10 text-center pointer-events-none">
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400 drop-shadow-lg">
                 项目宇宙
             </h2>
             <p className="text-slate-400 text-sm mt-2 opacity-80">
-                拖拽旋转视角 · 点击查看详情
+                拖拽旋转 · 点击查看详情
             </p>
         </div>
 
-        <Canvas camera={{ position: [0, 0, 12], fov: 50 }} dpr={[1, 2]}>
-            <GalaxyScene onItemClick={setSelectedImage} />
+        <Canvas camera={{ position: [0, 0, 14], fov: 45 }} dpr={[1, 2]}>
+            <OrbitControls 
+                makeDefault
+                enablePan={false} 
+                enableZoom={false} 
+                autoRotate 
+                autoRotateSpeed={0.5}
+                minPolarAngle={Math.PI / 4}
+                maxPolarAngle={Math.PI / 1.5}
+            />
+            <GalaxyScene onItemClick={setSelectedProject} />
+            
+            {/* Post Processing Effects */}
+            <EffectComposer enableNormalPass={false}>
+                <Bloom luminanceThreshold={0} mipmapBlur intensity={0.5} radius={0.4} />
+            </EffectComposer>
         </Canvas>
 
-        {/* Lightbox Modal */}
+        {/* Detail Modal */}
         <AnimatePresence>
-            {selectedImage && (
+            {selectedProject && (
                 <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 cursor-auto"
-                    onClick={() => setSelectedImage(null)}
+                    className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+                    onClick={() => setSelectedProject(null)}
                 >
                     <motion.div 
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        className="relative max-w-5xl max-h-full"
+                        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                        animate={{ scale: 1, y: 0, opacity: 1 }}
+                        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                        className="relative bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[80vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
+                        {/* Close Button */}
                         <button 
-                            onClick={() => setSelectedImage(null)}
-                            className="absolute -top-12 right-0 text-white hover:text-game-accent transition z-50"
+                            onClick={() => setSelectedProject(null)}
+                            className="absolute top-4 right-4 text-white/70 hover:text-game-accent transition z-50 bg-black/20 p-2 rounded-full backdrop-blur-sm"
                         >
-                            <X size={32} />
+                            <X size={24} />
                         </button>
-                        <img 
-                            src={selectedImage} 
-                            alt="Project Detail"
-                            className="rounded-lg shadow-2xl border border-slate-700 max-h-[80vh] object-contain"
-                            onError={(e) => {
-                                e.currentTarget.src = "https://picsum.photos/800/600";
-                            }}
-                        />
-                        <div className="mt-4 text-center">
-                            <span className="text-slate-300 bg-slate-800/50 px-4 py-2 rounded-full text-sm backdrop-blur-sm border border-slate-700">
-                                Project Detail
-                            </span>
+
+                        {/* Image Side */}
+                        <div className="md:w-3/5 bg-black relative">
+                            <img 
+                                src={selectedProject.url} 
+                                alt={selectedProject.title}
+                                className="w-full h-full object-contain md:object-cover bg-slate-950"
+                                onError={(e) => {
+                                    e.currentTarget.src = "https://picsum.photos/800/600";
+                                }}
+                            />
+                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent md:bg-gradient-to-r" />
+                        </div>
+
+                        {/* Content Side */}
+                        <div className="md:w-2/5 p-8 flex flex-col justify-center">
+                            <h3 className="text-2xl font-bold text-white mb-2">{selectedProject.title}</h3>
+                            
+                            <div className="flex flex-wrap items-center gap-3 mb-6">
+                                {selectedProject.date && (
+                                  <span className="flex items-center text-xs text-slate-400 font-mono">
+                                    <Calendar size={12} className="mr-1" />
+                                    {selectedProject.date}
+                                  </span>
+                                )}
+                                <div className="h-4 w-px bg-slate-700"></div>
+                                {selectedProject.tags?.map((tag, i) => (
+                                    <span key={i} className="flex items-center text-xs text-game-secondary bg-game-secondary/10 px-2 py-1 rounded border border-game-secondary/20">
+                                        <Tag size={10} className="mr-1" />
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <div className="w-12 h-1 bg-game-accent mb-6" />
+
+                            <p className="text-slate-300 leading-relaxed text-sm md:text-base">
+                                {selectedProject.description || "暂无详细描述..."}
+                            </p>
+
+                            <div className="mt-8">
+                                <button className="text-sm font-mono text-slate-500 hover:text-white transition-colors cursor-not-allowed">
+                                    // VIEW_SOURCE_CODE (Private)
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 </motion.div>

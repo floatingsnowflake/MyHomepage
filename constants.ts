@@ -34,15 +34,50 @@ export const ASSETS = {
 };
 
 // 3D Universe Gallery Images
-// Put your project screenshots in /public/assets/images/universe/
+// Using Unsplash images as reliable fallbacks since local assets are missing
 export const PROJECT_UNIVERSE = [
-  { url: "/assets/images/universe/proj_1.jpg", title: "Project Alpha" },
-  { url: "/assets/images/universe/proj_2.jpg", title: "Project Beta" },
-  { url: "/assets/images/universe/proj_3.jpg", title: "UI Design System" },
-  { url: "/assets/images/universe/proj_4.jpg", title: "Shader Works" },
-  { url: "/assets/images/universe/proj_5.jpg", title: "Character Setup" },
-  { url: "/assets/images/universe/proj_6.jpg", title: "Environment Art" },
-  // Add as many as you want, the 3D system handles them
+  { 
+    url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800", // Abstract Shader
+    title: "Project Alpha",
+    date: "2023.10",
+    tags: ["Unity ECS", "DOTS"],
+    description: "一个基于 Unity ECS 架构的高性能战斗演示，同屏支持 5000+ 单位渲染与逻辑运算。"
+  },
+  { 
+    url: "https://images.unsplash.com/photo-1614728853970-3a5e07a4a9c8?q=80&w=800", // Particles
+    title: "Project Beta",
+    date: "2023.08",
+    tags: ["Shader Graph", "VFX"],
+    description: "专注于次世代渲染效果的实验性项目，包含体积云、动态全局光照以及高度风格化的后处理效果。"
+  },
+  { 
+    url: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800", // UI/Code
+    title: "UI Design System",
+    date: "2023.05",
+    tags: ["UGUI", "MVVM"],
+    description: "一套高度可复用的 UI 框架，解耦了逻辑与视图，支持复杂动画状态管理与 Lua 热更接口。"
+  },
+  { 
+    url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800", // Cyberpunk City
+    title: "Shader Works",
+    date: "2023.02",
+    tags: ["HLSL", "Compute Shader"],
+    description: "基于 Compute Shader 的 GPU 粒子系统与流体模拟，优化了移动端的性能表现。"
+  },
+  { 
+    url: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=800", // Character/Model
+    title: "Character Setup",
+    date: "2022.11",
+    tags: ["Animation", "Rigging"],
+    description: "复杂的角色 IK 与动画状态机设置，实现了脚部贴地、程序化瞄准与自然的布娃娃系统。"
+  },
+  { 
+    url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800", // Earth/Map
+    title: "Environment Art",
+    date: "2022.08",
+    tags: ["PCG", "Terrain"],
+    description: "程序化生成 (PCG) 地形与植被系统，通过噪声算法自动生成无限延伸的自然地貌。"
+  },
 ];
 
 export const PERSONAL_INFO = {
