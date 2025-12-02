@@ -44,7 +44,7 @@ export const PROJECT_UNIVERSE = [
     description: "一个基于 Unity ECS 架构的高性能战斗演示，同屏支持 5000+ 单位渲染与逻辑运算。"
   },
   { 
-    url: "https://images.unsplash.com/photo-1614728853970-3a5e07a4a9c8?q=80&w=800", // Particles
+    url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800", // Particles (Updated to working URL)
     title: "Project Beta",
     date: "2023.08",
     tags: ["Shader Graph", "VFX"],
