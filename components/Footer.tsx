@@ -1,4 +1,5 @@
 import React from 'react';
+import { PERSONAL_INFO } from '../constants';
 
 const Footer: React.FC = () => {
   return (
@@ -8,15 +9,15 @@ const Footer: React.FC = () => {
         <p className="text-slate-400 mb-8 max-w-2xl mx-auto">
             无论是复杂的游戏系统架构，还是棘手的 Bug 修复，我随时准备接受挑战。
         </p>
-        <div className="flex justify-center space-x-6 mb-8">
-            <a href="mailto:example@email.com" className="text-slate-400 hover:text-game-accent transition">Email Me</a>
-            <span className="text-slate-700">|</span>
-            <a href="#" className="text-slate-400 hover:text-game-accent transition">GitHub</a>
-            <span className="text-slate-700">|</span>
-            <a href="#" className="text-slate-400 hover:text-game-accent transition">Xianyu</a>
+        <div className="flex justify-center items-center space-x-6 mb-8">
+            <a href={`mailto:${PERSONAL_INFO.email}`} className="text-slate-400 hover:text-game-accent transition flex items-center">
+               <span>Email: {PERSONAL_INFO.email}</span>
+            </a>
+            <span className="text-slate-700 hidden sm:inline">|</span>
+            <a href="#" className="text-slate-400 hover:text-game-accent transition hidden sm:inline">GitHub</a>
         </div>
         <p className="text-slate-600 text-sm">
-          © {new Date().getFullYear()} Unity Senior Engineer Portfolio. Built with React & Tailwind.
+          © {new Date().getFullYear()} Unity Senior Engineer Portfolio. 
         </p>
       </div>
     </footer>

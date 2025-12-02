@@ -3,13 +3,17 @@ import { Code, Bug, Zap, Layers, Gamepad2, Cpu, PenTool, Server } from 'lucide-r
 
 /**
  * ASSET CONFIGURATION
- * Place your files in the public/assets folder of your Vercel project.
+ * 
+ * IMPORTANT: To make these images work, your folder structure in Vercel/GitHub must be:
+ * /public/assets/images/hero_bg.jpg
+ * /public/assets/images/avatar.jpg
+ * ...etc
  */
 export const ASSETS = {
-  avatar: "/assets/images/avatar.jpg", // Place your profile pic here
+  avatar: "/assets/images/avatar.jpg", 
   minghai: {
-    pv: "/assets/video/minghai_pv.mp4", // Place your PV video here
-    mainImage: "/assets/images/minghai_main.jpg", // Fallback image
+    pv: "/assets/video/minghai_pv.mp4",
+    mainImage: "/assets/images/minghai_main.jpg", 
     gallery: [
       "/assets/images/minghai_1.jpg",
       "/assets/images/minghai_2.jpg",
@@ -17,18 +21,31 @@ export const ASSETS = {
       "/assets/images/minghai_4.jpg",
     ]
   },
+  // Updated to point to local files so you can replace them
   placeholders: {
-    heroBg: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=2070",
-    minghaiFallback: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=1965"
+    heroBg: "/assets/images/hero_bg.jpg", // Name your background image this
+    minghaiFallback: "/assets/images/minghai_fallback.jpg", // Name your fallback image this
+    interests: [
+        "/assets/images/interest_1.jpg", // Anime/Game images
+        "/assets/images/interest_2.jpg",
+        "/assets/images/interest_3.jpg"
+    ]
   }
 };
 
 export const PERSONAL_INFO = {
-  name: "Unity Senior Engineer", // Replace with your name
+  name: "Unity Senior Engineer", 
   title: "资深 Unity 游戏开发工程师",
+  email: "571876754@qq.com",
   tagline: "3800+ 问题解决专家 | 命骸项目主程 | 极致性能优化",
-  summary: "丰富的2D/3D游戏制作经验，主导开发过《命骸》等复杂项目。作为闲鱼平台Unity领域的“外包战士”，累计解决3800+技术难题，拥有极强的Debug能力与架构设计思维。热爱二次元与独立游戏。",
+  summary: "丰富的2D/3D游戏制作经验，主导开发过《命骸》等复杂项目。作为闲鱼平台Unity领域的“外包战士”，累计解决3800+技术难题，拥有极强的Debug能力与架构设计思维。",
   steamLink: "https://store.steampowered.com/app/3007510/_/"
+};
+
+export const INTERESTS_DATA = {
+    title: "兴趣爱好",
+    description: "喜欢动漫、二次元、游戏、宅。喜欢的动漫有：命运石之门，叛逆的鲁路修，游戏人生，进击的巨人，死亡笔记，为美好的世界献上祝福等等。非常期待能参与独立游戏开发。",
+    tags: ["命运石之门", "叛逆的鲁路修", "游戏人生", "进击的巨人", "Steam独立游戏", "二次元"]
 };
 
 export const SKILLS: Skill[] = [

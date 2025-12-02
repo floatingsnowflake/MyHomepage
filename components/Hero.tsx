@@ -8,9 +8,13 @@ const Hero: React.FC = () => {
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-950">
       {/* Background Layer - Simulated Video/Image */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-950 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-950 z-10" />
         <img 
           src={ASSETS.placeholders.heroBg} 
+          onError={(e) => {
+             // Fallback to a dark color or generic placeholder if local file missing
+             e.currentTarget.style.display = 'none';
+          }}
           alt="Background" 
           className="w-full h-full object-cover opacity-40"
         />
@@ -43,7 +47,7 @@ const Hero: React.FC = () => {
               查看核心项目 (命骸)
             </a>
             <a 
-              href="#contact"
+              href={`mailto:${PERSONAL_INFO.email}`}
               className="px-8 py-3 border border-slate-500 text-base font-medium rounded-none text-slate-300 hover:text-white hover:border-white hover:bg-white/5 transition-all duration-300"
             >
               联系我
@@ -51,13 +55,12 @@ const Hero: React.FC = () => {
           </div>
 
           <div className="mt-12 flex justify-center space-x-6">
-             {/* Placeholder social links */}
              <div className="p-2 bg-slate-800/50 rounded-full hover:bg-game-accent/50 transition cursor-pointer">
                 <Github className="w-6 h-6 text-white" />
              </div>
-             <div className="p-2 bg-slate-800/50 rounded-full hover:bg-game-accent/50 transition cursor-pointer">
+             <a href={`mailto:${PERSONAL_INFO.email}`} className="p-2 bg-slate-800/50 rounded-full hover:bg-game-accent/50 transition cursor-pointer">
                 <Mail className="w-6 h-6 text-white" />
-             </div>
+             </a>
           </div>
         </motion.div>
       </div>
@@ -66,9 +69,9 @@ const Hero: React.FC = () => {
          <motion.div 
            animate={{ y: [0, 10, 0] }} 
            transition={{ repeat: Infinity, duration: 1.5 }}
-           className="text-slate-500"
+           className="text-slate-500 font-mono text-sm"
          >
-           SCROLL
+           SCROLL_DOWN
          </motion.div>
       </div>
     </section>
