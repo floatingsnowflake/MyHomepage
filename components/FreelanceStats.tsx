@@ -7,6 +7,64 @@ import { FreelanceItem } from '../types';
 import Lightbox from './Lightbox';
 import { ZoomIn } from 'lucide-react';
 
+// Mecha-style fallback component for missing images
+const MechaFallback = () => (
+  <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center relative overflow-hidden border border-slate-700">
+    {/* Grid Pattern */}
+    <div className="absolute inset-0 opacity-20">
+       <svg width="100%" height="100%">
+         <defs>
+            <pattern id="mech_grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#64748b" strokeWidth="0.5"/>
+            </pattern>
+         </defs>
+         <rect width="100%" height="100%" fill="url(#mech_grid)" />
+       </svg>
+    </div>
+    {/* Crosshair / Tech Symbol */}
+    <div className="relative z-10 w-12 h-12 border-2 border-slate-600 rounded-full flex items-center justify-center">
+        <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+        <div className="absolute top-0 w-[1px] h-3 bg-slate-600 -translate-y-full" />
+        <div className="absolute bottom-0 w-[1px] h-3 bg-slate-600 translate-y-full" />
+        <div className="absolute left-0 h-[1px] w-3 bg-slate-600 -translate-x-full" />
+        <div className="absolute right-0 h-[1px] w-3 bg-slate-600 translate-x-full" />
+    </div>
+    <span className="mt-3 text-[10px] font-mono text-slate-500 tracking-[0.2em]">NO SIGNAL</span>
+  </div>
+);
+
+const ShowcaseItem = ({ item, onClick }: { item: FreelanceItem, onClick: () => void }) => {
+    const [error, setError] = useState(false);
+    
+    return (
+        <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-700 relative group cursor-pointer"
+            onClick={onClick}
+        >
+            {!error ? (
+                <>
+                    <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        onError={() => setError(true)}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
+                        <ZoomIn className="text-white w-8 h-8" />
+                    </div>
+                </>
+            ) : (
+                <MechaFallback />
+            )}
+            
+            <div className="absolute bottom-0 left-0 w-full bg-black/70 p-2 text-xs text-center text-white truncate z-20">
+                {item.title}
+            </div>
+        </motion.div>
+    )
+}
+
 const FreelanceStats: React.FC = () => {
   const { content } = useLanguage();
   const [showcaseItems, setShowcaseItems] = useState<FreelanceItem[]>(FREELANCE_SHOWCASE_DATA);
@@ -73,24 +131,11 @@ const FreelanceStats: React.FC = () => {
                <h3 className="text-slate-400 text-sm font-mono uppercase tracking-widest mb-6 text-center">Project Showcase & Reviews</h3>
                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {showcaseItems.map((item, i) => (
-                     <motion.div 
-                        key={i}
-                        whileHover={{ scale: 1.05 }}
-                        className="aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-700 relative group cursor-pointer"
-                        onClick={() => setLightboxSrc(item.image)}
-                     >
-                        <img 
-                           src={item.image} 
-                           alt={item.title} 
-                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
-                            <ZoomIn className="text-white w-8 h-8" />
-                        </div>
-                        <div className="absolute bottom-0 left-0 w-full bg-black/70 p-2 text-xs text-center text-white truncate">
-                           {item.title}
-                        </div>
-                     </motion.div>
+                     <ShowcaseItem 
+                        key={i} 
+                        item={item} 
+                        onClick={() => setLightboxSrc(item.image)} 
+                     />
                   ))}
                </div>
             </div>

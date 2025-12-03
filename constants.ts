@@ -74,7 +74,8 @@ export const DEFAULT_CONTENT: SiteContent = {
       "自定义 2D 动画状态机",
       "Cinemachine 动态相机系统",
       "高度模块化的任务与对话架构"
-    ]
+    ],
+    tags: ["Unity 2021+", "C#", "MemoryPack", "Cinemachine", "UGUI"]
   },
   skills: {
     title: '技术栈与能力',
@@ -150,25 +151,4 @@ export const FREELANCE_STATS: Stat[] = [
   { label: "涉猎项目类型", value: "20+", icon: Gamepad2 },
 ];
 
-export const FREELANCE_SHOWCASE_DATA: FreelanceItem[] = [
-    {
-        image: `${GITHUB_RAW_BASE}/assets/images/showcase/case_1.jpg`,
-        title: "Unity 性能深度优化 Case",
-        description: "Frame debugger analysis"
-    },
-    {
-        image: `${GITHUB_RAW_BASE}/assets/images/showcase/case_2.jpg`,
-        title: "大语言模型 AI 对接",
-        description: "LLM Integration"
-    },
-    {
-        image: `${GITHUB_RAW_BASE}/assets/images/showcase/case_3.jpg`,
-        title: "工业数字孪生 Demo",
-        description: "Digital Twin"
-    },
-    {
-        image: `${GITHUB_RAW_BASE}/assets/images/showcase/case_4.jpg`,
-        title: "休闲物理游戏开发",
-        description: "2D Physics Game"
-    }
-];
+export const FREELANCE_SHOWCASE_DATA: FreelanceItem[] = [];

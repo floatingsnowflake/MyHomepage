@@ -62,6 +62,7 @@ export interface SiteContent {
     steam_btn: string;
     internal_btn: string;
     features: string[]; // Moved here
+    tags: string[];
   };
   skills: {
     title: string;

@@ -34,6 +34,7 @@ const ProjectMinghai: React.FC = () => {
 
   // Features are now directly loaded from the content JSON (i18n supported)
   const features = content.minghai.features || [];
+  const tags = content.minghai.tags || [];
 
   return (
     <section id="minghai" className="py-24 bg-slate-900 relative overflow-hidden">
@@ -104,11 +105,11 @@ const ProjectMinghai: React.FC = () => {
               />
 
               <div className="flex flex-wrap gap-3 mb-8">
-                <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">Unity 2021+</span>
-                <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">C#</span>
-                <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">MemoryPack</span>
-                <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">Cinemachine</span>
-                <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">UGUI</span>
+                {tags.map((tag, i) => (
+                  <span key={i} className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">
+                    {tag}
+                  </span>
+                ))}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
