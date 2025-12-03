@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
 
 const Navbar: React.FC = () => {
+  const { content, toggleLanguage, lang } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -14,11 +17,11 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { name: '首页', href: '#hero' },
-    { name: '命骸 Project', href: '#minghai' },
-    { name: '技能', href: '#skills' },
-    { name: '工作经历', href: '#experience' },
-    { name: '闲鱼传说', href: '#freelance' },
+    { name: content.nav.home, href: '#hero' },
+    { name: content.nav.minghai, href: '#minghai' },
+    { name: content.nav.skills, href: '#skills' },
+    { name: content.nav.experience, href: '#experience' },
+    { name: content.nav.freelance, href: '#freelance' },
   ];
 
   return (
@@ -31,19 +34,33 @@ const Navbar: React.FC = () => {
             </span>
           </div>
           
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <a
-                key={link.name}
+                key={link.href}
                 href={link.href}
                 className="text-slate-300 hover:text-game-secondary transition-colors text-sm font-medium uppercase tracking-wider"
               >
                 {link.name}
               </a>
             ))}
+            
+            <button 
+                onClick={toggleLanguage}
+                className="flex items-center space-x-1 px-3 py-1 rounded border border-slate-700 bg-slate-800 text-xs font-mono hover:bg-slate-700 transition"
+            >
+                <Globe size={14} />
+                <span>{lang === 'zh' ? 'EN' : '中文'}</span>
+            </button>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-4">
+            <button 
+                onClick={toggleLanguage}
+                className="px-2 py-1 rounded border border-slate-700 bg-slate-800 text-xs font-mono"
+            >
+                {lang === 'zh' ? 'EN' : 'ZH'}
+            </button>
             <button onClick={() => setIsOpen(!isOpen)} className="text-slate-300">
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -57,7 +74,7 @@ const Navbar: React.FC = () => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
               <a
-                key={link.name}
+                key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
                 className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"

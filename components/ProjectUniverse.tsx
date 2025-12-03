@@ -7,6 +7,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { PROJECT_UNIVERSE as DEFAULT_PROJECTS, ASSETS } from '../constants';
 import { X, Tag, Calendar, AlertOctagon, ExternalLink, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../utils/LanguageContext';
 
 // --- Types ---
 interface ProjectItem {
@@ -152,13 +153,15 @@ const GalaxyScene = ({ projects, onItemClick }: { projects: ProjectItem[], onIte
       const theta = Math.sqrt(projects.length * Math.PI) * phi;
       
       const radius = 6;
+      // Flatten the Y axis significantly (multiply by 0.6) to reduce vertical spread
       const x = radius * Math.cos(theta) * Math.sin(phi);
-      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const y = (radius * Math.sin(theta) * Math.sin(phi)) * 0.6; 
       const z = radius * Math.cos(phi);
 
+      // Reduce random Y offset
       return {
         data: item,
-        position: [x * 1.5, y * 1.5 + (Math.random() - 0.5) * 2, z] as [number, number, number],
+        position: [x * 1.5, y * 1.5 + (Math.random() - 0.5) * 0.5, z] as [number, number, number],
         rotation: [0, -theta, 0] as [number, number, number]
       };
     });
@@ -198,6 +201,7 @@ const GalaxyScene = ({ projects, onItemClick }: { projects: ProjectItem[], onIte
 // --- Main Component ---
 
 const ProjectUniverse: React.FC = () => {
+  const { content, lang } = useLanguage();
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [projects, setProjects] = useState<ProjectItem[]>(DEFAULT_PROJECTS);
   const [imgError, setImgError] = useState(false);
@@ -206,7 +210,9 @@ const ProjectUniverse: React.FC = () => {
   useEffect(() => {
      const fetchProjects = async () => {
          try {
-             const response = await fetch(ASSETS.data.universe);
+             // Append lang suffix: project_universe_en.json
+             const url = `${ASSETS.data.universe}_${lang}.json`;
+             const response = await fetch(url);
              if(response.ok) {
                  const json = await response.json();
                  // Basic validation to ensure it's an array
@@ -219,16 +225,16 @@ const ProjectUniverse: React.FC = () => {
          }
      }
      fetchProjects();
-  }, []);
+  }, [lang]);
 
   return (
     <section id="project-universe" className="relative h-[85vh] w-full bg-slate-950 overflow-hidden border-t border-slate-900">
         <div className="absolute top-8 left-0 w-full z-10 text-center pointer-events-none">
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400 drop-shadow-lg">
-                项目宇宙
+                {content.universe.title}
             </h2>
             <p className="text-slate-400 text-sm mt-2 opacity-80">
-                拖拽旋转 · 点击查看详情
+                {content.universe.subtitle}
             </p>
         </div>
 
@@ -239,7 +245,7 @@ const ProjectUniverse: React.FC = () => {
                 enableZoom={false} 
                 autoRotate 
                 autoRotateSpeed={0.5}
-                minPolarAngle={Math.PI / 4}
+                minPolarAngle={Math.PI / 3} // Restrict vertical angle to keep it more horizontal
                 maxPolarAngle={Math.PI / 1.5}
             />
             <GalaxyScene projects={projects} onItemClick={setSelectedProject} />
@@ -328,7 +334,7 @@ const ProjectUniverse: React.FC = () => {
                                         className="inline-flex items-center px-4 py-2 bg-game-accent hover:bg-violet-600 text-white rounded transition-colors"
                                     >
                                         <ExternalLink size={16} className="mr-2" />
-                                        查看详情 (View Project)
+                                        {content.universe.view_btn}
                                     </a>
                                 ) : (
                                     <button 
@@ -336,7 +342,7 @@ const ProjectUniverse: React.FC = () => {
                                         className="inline-flex items-center px-4 py-2 bg-slate-800 text-slate-500 rounded cursor-not-allowed border border-slate-700"
                                     >
                                         <Lock size={16} className="mr-2" />
-                                        内部项目 (Internal Access Only)
+                                        {content.universe.internal_btn}
                                     </button>
                                 )}
                             </div>

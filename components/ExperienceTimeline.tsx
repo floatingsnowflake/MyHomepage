@@ -3,14 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { EXPERIENCES as DEFAULT_EXPERIENCES, ASSETS } from '../constants';
 import { Briefcase } from 'lucide-react';
 import { Experience } from '../types';
+import { useLanguage } from '../utils/LanguageContext';
 
 const ExperienceTimeline: React.FC = () => {
+  const { content, lang } = useLanguage();
   const [experiences, setExperiences] = useState<Experience[]>(DEFAULT_EXPERIENCES);
 
   useEffect(() => {
     const fetchExperiences = async () => {
       try {
-        const response = await fetch(ASSETS.data.experiences);
+        const url = `${ASSETS.data.experiences}_${lang}.json`;
+        const response = await fetch(url);
         if (response.ok) {
           const json = await response.json();
           if (Array.isArray(json) && json.length > 0) {
@@ -22,13 +25,13 @@ const ExperienceTimeline: React.FC = () => {
       }
     };
     fetchExperiences();
-  }, []);
+  }, [lang]);
 
   return (
     <section id="experience" className="py-20 bg-slate-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white">工作经历</h2>
+          <h2 className="text-3xl font-bold text-white">{content.experience.title}</h2>
         </div>
 
         <div className="relative border-l border-slate-700 ml-4 md:ml-10 space-y-12">

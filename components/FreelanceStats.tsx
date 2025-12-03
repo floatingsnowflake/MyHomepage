@@ -1,27 +1,54 @@
-import React from 'react';
-import { FREELANCE_STATS } from '../constants';
+
+import React, { useState, useEffect } from 'react';
+import { FREELANCE_STATS, ASSETS, FREELANCE_SHOWCASE_DATA } from '../constants';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../utils/LanguageContext';
+import { FreelanceItem } from '../types';
+import Lightbox from './Lightbox';
+import { ZoomIn } from 'lucide-react';
 
 const FreelanceStats: React.FC = () => {
+  const { content } = useLanguage();
+  const [showcaseItems, setShowcaseItems] = useState<FreelanceItem[]>(FREELANCE_SHOWCASE_DATA);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchShowcase = async () => {
+      try {
+        const response = await fetch(ASSETS.data.freelanceShowcase);
+        if (response.ok) {
+          const json = await response.json();
+          if (Array.isArray(json) && json.length > 0) {
+             setShowcaseItems(json);
+          }
+        }
+      } catch (e) {
+         console.log("No remote freelance showcase data, using default.");
+      }
+    };
+    fetchShowcase();
+  }, []);
+
   return (
     <section id="freelance" className="py-20 bg-slate-950 border-t border-slate-900">
+      <Lightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-violet-900/20 to-blue-900/20 rounded-2xl p-8 md:p-16 border border-slate-800">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
             <div className="md:w-1/2">
               <h2 className="text-3xl font-bold text-white mb-4">
-                闲鱼 <span className="text-yellow-400">Unity 外包战士</span>
+                {content.freelance.title} <span className="text-yellow-400">{content.freelance.title_highlight}</span>
               </h2>
               <p className="text-slate-300 mb-6 leading-relaxed">
-                自2024年以来，我在闲鱼平台累计处理超过 3,800+ 单 Unity 相关问题。
-                这不仅是数字，更是处理过数千个不同项目架构、不同Bug类型的经验积累。
-                无论是大语言模型对接、无人机仿真，还是传统的2D/3D游戏开发，我都拥有极速定位问题和解决问题的能力。
+                {content.freelance.desc}
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400">数据可视化</span>
-                <span className="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400">3D钓鱼</span>
-                <span className="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400">车企UI交互</span>
-                <span className="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400">人脸识别</span>
+                {content.freelance.tags.map((tag, i) => (
+                   <span key={i} className="bg-slate-800 text-xs px-2 py-1 rounded text-slate-400 border border-slate-700">
+                     {tag}
+                   </span>
+                ))}
               </div>
             </div>
 
@@ -39,6 +66,35 @@ const FreelanceStats: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Showcase Carousel / Grid */}
+          {showcaseItems.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-slate-700/50">
+               <h3 className="text-slate-400 text-sm font-mono uppercase tracking-widest mb-6 text-center">Project Showcase & Reviews</h3>
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {showcaseItems.map((item, i) => (
+                     <motion.div 
+                        key={i}
+                        whileHover={{ scale: 1.05 }}
+                        className="aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-700 relative group cursor-pointer"
+                        onClick={() => setLightboxSrc(item.image)}
+                     >
+                        <img 
+                           src={item.image} 
+                           alt={item.title} 
+                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
+                            <ZoomIn className="text-white w-8 h-8" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-full bg-black/70 p-2 text-xs text-center text-white truncate">
+                           {item.title}
+                        </div>
+                     </motion.div>
+                  ))}
+               </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

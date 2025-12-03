@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PERSONAL_INFO, ASSETS } from '../constants';
+import { useLanguage } from '../utils/LanguageContext';
 import { Github, Mail } from 'lucide-react';
 
 const Hero: React.FC = () => {
+  const { content } = useLanguage();
   const [bgError, setBgError] = useState(false);
 
   return (
@@ -42,30 +44,30 @@ const Hero: React.FC = () => {
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-game-secondary font-mono text-lg mb-4 tracking-widest uppercase">
-            Senior Unity Engineer
+            {content.hero.role}
           </h2>
           <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
-            <span className="block">{PERSONAL_INFO.title}</span>
+            <span className="block">{content.hero.title}</span>
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-300">
-            {PERSONAL_INFO.tagline}
+            {content.hero.tagline}
           </p>
           <p className="mt-4 max-w-3xl mx-auto text-base text-slate-400 leading-relaxed">
-            {PERSONAL_INFO.summary}
+            {content.hero.summary}
           </p>
 
-          <div className="mt-10 flex justify-center gap-4">
+          <div className="mt-10 flex flex-col md:flex-row justify-center gap-4">
             <a 
               href="#minghai"
               className="px-8 py-3 border border-transparent text-base font-medium rounded-none bg-game-accent hover:bg-violet-600 text-white transition-all duration-300 shadow-[0_0_15px_rgba(139,92,246,0.5)] hover:shadow-[0_0_25px_rgba(139,92,246,0.8)]"
             >
-              查看核心项目 (命骸)
+              {content.hero.cta_project}
             </a>
             <a 
               href={`mailto:${PERSONAL_INFO.email}`}
               className="px-8 py-3 border border-slate-500 text-base font-medium rounded-none text-slate-300 hover:text-white hover:border-white hover:bg-white/5 transition-all duration-300"
             >
-              联系我
+              {content.hero.cta_contact}
             </a>
           </div>
 
@@ -86,7 +88,7 @@ const Hero: React.FC = () => {
            transition={{ repeat: Infinity, duration: 1.5 }}
            className="text-slate-500 font-mono text-sm"
          >
-           SCROLL_DOWN
+           {content.hero.scroll}
          </motion.div>
       </div>
     </section>

@@ -1,8 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ASSETS, MINGHAI_FEATURES as DEFAULT_FEATURES, PERSONAL_INFO } from '../constants';
+import { ASSETS, PERSONAL_INFO } from '../constants';
 import { ExternalLink, Zap } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
+import Lightbox from './Lightbox';
 
 // Reusable Fallback Component
 const MinimalistFallback = ({ label }: { label?: string }) => (
@@ -26,35 +28,29 @@ const MinimalistFallback = ({ label }: { label?: string }) => (
 );
 
 const ProjectMinghai: React.FC = () => {
+  const { content } = useLanguage();
   const [videoError, setVideoError] = useState(false);
-  const [features, setFeatures] = useState<string[]>(DEFAULT_FEATURES);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchFeatures = async () => {
-      try {
-        const response = await fetch(ASSETS.data.minghaiFeatures);
-        if (response.ok) {
-          const json = await response.json();
-          if (Array.isArray(json) && json.length > 0) {
-            setFeatures(json);
-          }
-        }
-      } catch (e) {
-        // Silent fail
-      }
-    };
-    fetchFeatures();
-  }, []);
+  // Features are now directly loaded from the content JSON (i18n supported)
+  const features = content.minghai.features || [];
 
   return (
     <section id="minghai" className="py-24 bg-slate-900 relative overflow-hidden">
+      {/* Lightbox Overlay */}
+      <Lightbox 
+        src={lightboxSrc} 
+        onClose={() => setLightboxSrc(null)} 
+        alt="Minghai Project Screenshot"
+      />
+
       {/* Decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-violet-900/10 to-transparent pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-game-secondary font-mono text-sm uppercase tracking-widest mb-2">Flagship Project</h2>
-          <h3 className="text-4xl font-bold text-white">命骸 (Ming Hai)</h3>
+          <h2 className="text-game-secondary font-mono text-sm uppercase tracking-widest mb-2">{content.minghai.subtitle}</h2>
+          <h3 className="text-4xl font-bold text-white">{content.minghai.title}</h3>
           <div className="w-24 h-1 bg-game-accent mx-auto mt-4" />
         </div>
 
@@ -69,6 +65,7 @@ const ProjectMinghai: React.FC = () => {
                     controls
                     muted
                     loop
+                    preload="metadata"
                     onError={() => setVideoError(true)}
                   >
                     <source src={ASSETS.minghai.pv} type="video/mp4" />
@@ -80,7 +77,7 @@ const ProjectMinghai: React.FC = () => {
               
               {!videoError && (
                 <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                  PV 展示
+                  {content.minghai.video_label}
                 </div>
               )}
             </div>
@@ -88,7 +85,12 @@ const ProjectMinghai: React.FC = () => {
             {/* Thumbnail Grid */}
             <div className="grid grid-cols-4 gap-4">
               {ASSETS.minghai.gallery.map((src, index) => (
-                <Thumbnail key={index} src={src} index={index} />
+                <Thumbnail 
+                    key={index} 
+                    src={src} 
+                    index={index} 
+                    onClick={() => setLightboxSrc(src)}
+                />
               ))}
             </div>
           </div>
@@ -96,10 +98,10 @@ const ProjectMinghai: React.FC = () => {
           {/* Info Column */}
           <div>
             <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700 backdrop-blur-sm">
-              <p className="text-slate-300 text-lg leading-relaxed mb-6">
-                作为项目<b>总程序</b>，编写超过<b>8万行代码</b>。负责从底层架构到上层玩法的全方位实现。
-                这是一个复杂的 3D 横版 RPG，核心包含连击战斗系统、MemoryPack 高性能存档、高度模块化的任务与对话系统。
-              </p>
+              <p 
+                className="text-slate-300 text-lg leading-relaxed mb-6"
+                dangerouslySetInnerHTML={{ __html: content.minghai.desc_html }}
+              />
 
               <div className="flex flex-wrap gap-3 mb-8">
                 <span className="px-3 py-1 bg-slate-700 text-violet-300 text-sm rounded-full">Unity 2021+</span>
@@ -129,7 +131,7 @@ const ProjectMinghai: React.FC = () => {
                 className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-lg shadow-lg hover:shadow-blue-500/30 transition-all"
               >
                 <ExternalLink className="w-5 h-5 mr-2" />
-                在 Steam 上查看命骸
+                {content.minghai.steam_btn}
               </motion.a>
             </div>
           </div>
@@ -139,12 +141,13 @@ const ProjectMinghai: React.FC = () => {
   );
 };
 
-const Thumbnail: React.FC<{src: string, index: number}> = ({ src, index }) => {
+const Thumbnail: React.FC<{src: string, index: number, onClick: () => void}> = ({ src, index, onClick }) => {
     const [error, setError] = useState(false);
     
     return (
         <motion.div 
             whileHover={{ scale: 1.05 }}
+            onClick={onClick}
             className="aspect-video rounded-lg overflow-hidden border border-slate-700 cursor-pointer relative group bg-slate-900"
         >
             {!error ? (
