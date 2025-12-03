@@ -1,82 +1,95 @@
+
 import { Project, Experience, Skill, Stat } from './types';
-import { Code, Bug, Zap, Layers, Gamepad2, Cpu, PenTool, Server } from 'lucide-react';
+import { Bug, Zap, Layers, Gamepad2 } from 'lucide-react';
+
+// Updated to the new Assets repository
+export const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/floatingsnowflake/MyHomepageAssets/main/public";
 
 /**
  * ASSET CONFIGURATION
  * 
- * IMPORTANT: To make these images work, your folder structure in Vercel/GitHub must be:
- * /public/assets/images/hero_bg.jpg
- * /public/assets/images/avatar.jpg
- * ...etc
+ * Assets are now pointed to: https://raw.githubusercontent.com/floatingsnowflake/MyHomepageAssets/main/public/assets
  */
 export const ASSETS = {
-  avatar: "/assets/images/avatar.jpg", 
+  avatar: `${GITHUB_RAW_BASE}/assets/images/avatar.jpg`, 
   minghai: {
-    pv: "/assets/video/minghai_pv.mp4",
-    mainImage: "/assets/images/minghai_main.jpg", 
+    pv: `${GITHUB_RAW_BASE}/assets/video/minghai_pv.mp4`,
+    mainImage: `${GITHUB_RAW_BASE}/assets/images/minghai_main.jpg`, 
     gallery: [
-      "/assets/images/minghai_1.jpg",
-      "/assets/images/minghai_2.jpg",
-      "/assets/images/minghai_3.jpg",
-      "/assets/images/minghai_4.jpg",
+      `${GITHUB_RAW_BASE}/assets/images/minghai_1.jpg`,
+      `${GITHUB_RAW_BASE}/assets/images/minghai_2.jpg`,
+      `${GITHUB_RAW_BASE}/assets/images/minghai_3.jpg`,
+      `${GITHUB_RAW_BASE}/assets/images/minghai_4.jpg`,
     ]
   },
-  // Updated to point to local files so you can replace them
   placeholders: {
-    heroBg: "/assets/images/hero_bg.jpg", // Name your background image this
-    minghaiFallback: "/assets/images/minghai_fallback.jpg", // Name your fallback image this
+    heroBg: `${GITHUB_RAW_BASE}/assets/images/hero_bg.jpg`,
+    minghaiFallback: `${GITHUB_RAW_BASE}/assets/images/minghai_fallback.jpg`,
     interests: [
-        "/assets/images/interest_1.jpg", // Anime/Game images
-        "/assets/images/interest_2.jpg",
-        "/assets/images/interest_3.jpg"
+        `${GITHUB_RAW_BASE}/assets/images/interest_1.jpg`,
+        `${GITHUB_RAW_BASE}/assets/images/interest_2.jpg`,
+        `${GITHUB_RAW_BASE}/assets/images/interest_3.jpg`
     ]
+  },
+  // Data file paths for dynamic loading
+  data: {
+    universe: `${GITHUB_RAW_BASE}/data/project_universe.json`,
+    interests: `${GITHUB_RAW_BASE}/data/interests.json`,
+    skills: `${GITHUB_RAW_BASE}/data/skills.json`,
+    experiences: `${GITHUB_RAW_BASE}/data/experiences.json`,
+    minghaiFeatures: `${GITHUB_RAW_BASE}/data/minghai_features.json`
   }
 };
 
-// 3D Universe Gallery Images
-// Using Unsplash images as reliable fallbacks since local assets are missing
+// 3D Universe Gallery Images - Default Data
 export const PROJECT_UNIVERSE = [
   { 
-    url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800", // Abstract Shader
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_1.jpg`,
     title: "Project Alpha",
     date: "2023.10",
     tags: ["Unity ECS", "DOTS"],
-    description: "一个基于 Unity ECS 架构的高性能战斗演示，同屏支持 5000+ 单位渲染与逻辑运算。"
+    description: "一个基于 Unity ECS 架构的高性能战斗演示，同屏支持 5000+ 单位渲染与逻辑运算。",
+    link: "" // Optional link
   },
   { 
-    url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800", // Particles (Updated to working URL)
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_2.jpg`,
     title: "Project Beta",
     date: "2023.08",
     tags: ["Shader Graph", "VFX"],
-    description: "专注于次世代渲染效果的实验性项目，包含体积云、动态全局光照以及高度风格化的后处理效果。"
+    description: "专注于次世代渲染效果的实验性项目，包含体积云、动态全局光照以及高度风格化的后处理效果。",
+    link: ""
   },
   { 
-    url: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800", // UI/Code
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_3.jpg`,
     title: "UI Design System",
     date: "2023.05",
     tags: ["UGUI", "MVVM"],
-    description: "一套高度可复用的 UI 框架，解耦了逻辑与视图，支持复杂动画状态管理与 Lua 热更接口。"
+    description: "一套高度可复用的 UI 框架，解耦了逻辑与视图，支持复杂动画状态管理与 Lua 热更接口。",
+    link: ""
   },
   { 
-    url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800", // Cyberpunk City
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_4.jpg`,
     title: "Shader Works",
     date: "2023.02",
     tags: ["HLSL", "Compute Shader"],
-    description: "基于 Compute Shader 的 GPU 粒子系统与流体模拟，优化了移动端的性能表现。"
+    description: "基于 Compute Shader 的 GPU 粒子系统与流体模拟，优化了移动端的性能表现。",
+    link: ""
   },
   { 
-    url: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=800", // Character/Model
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_5.jpg`,
     title: "Character Setup",
     date: "2022.11",
     tags: ["Animation", "Rigging"],
-    description: "复杂的角色 IK 与动画状态机设置，实现了脚部贴地、程序化瞄准与自然的布娃娃系统。"
+    description: "复杂的角色 IK 与动画状态机设置，实现了脚部贴地、程序化瞄准与自然的布娃娃系统。",
+    link: ""
   },
   { 
-    url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800", // Earth/Map
+    url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_6.jpg`,
     title: "Environment Art",
     date: "2022.08",
     tags: ["PCG", "Terrain"],
-    description: "程序化生成 (PCG) 地形与植被系统，通过噪声算法自动生成无限延伸的自然地貌。"
+    description: "程序化生成 (PCG) 地形与植被系统，通过噪声算法自动生成无限延伸的自然地貌。",
+    link: ""
   },
 ];
 
@@ -89,6 +102,7 @@ export const PERSONAL_INFO = {
   steamLink: "https://store.steampowered.com/app/3007510/_/"
 };
 
+// Default Data
 export const INTERESTS_DATA = {
     title: "兴趣爱好",
     description: "喜欢动漫、二次元、游戏、宅。喜欢的动漫有：命运石之门，叛逆的鲁路修，游戏人生，进击的巨人，死亡笔记，为美好的世界献上祝福等等。非常期待能参与独立游戏开发。",

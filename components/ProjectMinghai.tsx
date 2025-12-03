@@ -1,9 +1,51 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ASSETS, MINGHAI_FEATURES, PERSONAL_INFO } from '../constants';
-import { Play, ExternalLink, Cpu, Database, ShieldCheck, Zap } from 'lucide-react';
+import { ASSETS, MINGHAI_FEATURES as DEFAULT_FEATURES, PERSONAL_INFO } from '../constants';
+import { ExternalLink, Zap } from 'lucide-react';
+
+// Reusable Fallback Component
+const MinimalistFallback = ({ label }: { label?: string }) => (
+  <div className="w-full h-full bg-slate-900 flex items-center justify-center border border-slate-800 relative overflow-hidden group">
+    <div className="absolute inset-0 opacity-10">
+       <svg width="100%" height="100%">
+         <pattern id="grid_mini" width="20" height="20" patternUnits="userSpaceOnUse">
+           <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="1"/>
+         </pattern>
+         <rect width="100%" height="100%" fill="url(#grid_mini)" />
+       </svg>
+    </div>
+    <div className="z-10 flex flex-col items-center text-slate-600 group-hover:text-slate-500 transition-colors">
+      <div className="relative w-10 h-10 border border-slate-700 group-hover:border-slate-500 rounded-sm flex items-center justify-center transition-colors">
+         <div className="w-px h-12 bg-slate-700 group-hover:bg-slate-500 rotate-45 absolute transition-colors" />
+         <div className="w-px h-12 bg-slate-700 group-hover:bg-slate-500 -rotate-45 absolute transition-colors" />
+      </div>
+      <span className="mt-2 text-[10px] font-mono tracking-widest uppercase">{label || "NO SIGNAL"}</span>
+    </div>
+  </div>
+);
 
 const ProjectMinghai: React.FC = () => {
+  const [videoError, setVideoError] = useState(false);
+  const [features, setFeatures] = useState<string[]>(DEFAULT_FEATURES);
+
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      try {
+        const response = await fetch(ASSETS.data.minghaiFeatures);
+        if (response.ok) {
+          const json = await response.json();
+          if (Array.isArray(json) && json.length > 0) {
+            setFeatures(json);
+          }
+        }
+      } catch (e) {
+        // Silent fail
+      }
+    };
+    fetchFeatures();
+  }, []);
+
   return (
     <section id="minghai" className="py-24 bg-slate-900 relative overflow-hidden">
       {/* Decoration */}
@@ -20,44 +62,33 @@ const ProjectMinghai: React.FC = () => {
           {/* Media Column - Video Slot */}
           <div className="space-y-6">
             <div className="relative group rounded-xl overflow-hidden border-2 border-slate-700/50 bg-black shadow-2xl aspect-video">
-               {/* 
-                 VIDEO SLOT: 
-                 Logic checks for video file. If fails, falls back to image.
-               */}
-              <video 
-                className="w-full h-full object-cover"
-                poster={ASSETS.minghai.mainImage || ASSETS.placeholders.minghaiFallback}
-                controls
-                muted
-                loop
-              >
-                <source src={ASSETS.minghai.pv} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+               {!videoError ? (
+                 <video 
+                    className="w-full h-full object-cover"
+                    poster={ASSETS.minghai.mainImage}
+                    controls
+                    muted
+                    loop
+                    onError={() => setVideoError(true)}
+                  >
+                    <source src={ASSETS.minghai.pv} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+               ) : (
+                 <MinimalistFallback label="VIDEO SOURCE OFFLINE" />
+               )}
               
-              <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                PV 展示
-              </div>
+              {!videoError && (
+                <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                  PV 展示
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Grid */}
             <div className="grid grid-cols-4 gap-4">
               {ASSETS.minghai.gallery.map((src, index) => (
-                <motion.div 
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  className="aspect-video rounded-lg overflow-hidden border border-slate-700 cursor-pointer relative group"
-                >
-                   <img 
-                    src={src} 
-                    onError={(e) => {
-                      // Fallback if specific asset not found
-                      e.currentTarget.src = `https://picsum.photos/seed/minghai${index}/300/200`;
-                    }}
-                    alt={`Screenshot ${index + 1}`} 
-                    className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
-                   />
-                </motion.div>
+                <Thumbnail key={index} src={src} index={index} />
               ))}
             </div>
           </div>
@@ -79,7 +110,7 @@ const ProjectMinghai: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {MINGHAI_FEATURES.map((feat, idx) => (
+                {features.map((feat, idx) => (
                   <div key={idx} className="flex items-start space-x-2">
                     <div className="mt-1 min-w-[16px]">
                       <Zap size={16} className="text-game-secondary" />
@@ -106,6 +137,28 @@ const ProjectMinghai: React.FC = () => {
       </div>
     </section>
   );
+};
+
+const Thumbnail: React.FC<{src: string, index: number}> = ({ src, index }) => {
+    const [error, setError] = useState(false);
+    
+    return (
+        <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="aspect-video rounded-lg overflow-hidden border border-slate-700 cursor-pointer relative group bg-slate-900"
+        >
+            {!error ? (
+                <img 
+                    src={src} 
+                    onError={() => setError(true)}
+                    alt={`Screenshot ${index + 1}`} 
+                    className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
+                />
+            ) : (
+                <MinimalistFallback label="N/A" />
+            )}
+        </motion.div>
+    );
 };
 
 export default ProjectMinghai;

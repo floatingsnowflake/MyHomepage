@@ -1,19 +1,29 @@
-import React, { useRef, useState, useMemo, Suspense } from 'react';
+
+import React, { useRef, useState, useMemo, Suspense, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Image, Stars, Float, Sparkles, OrbitControls } from '@react-three/drei';
+import { Image, Stars, Float, Sparkles, OrbitControls, Line } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { PROJECT_UNIVERSE } from '../constants';
-import { X, Tag, Calendar } from 'lucide-react';
+import { PROJECT_UNIVERSE as DEFAULT_PROJECTS, ASSETS } from '../constants';
+import { X, Tag, Calendar, AlertOctagon, ExternalLink, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Types ---
+interface ProjectItem {
+    url: string;
+    title: string;
+    date: string;
+    tags: string[];
+    description: string;
+    link?: string;
+}
+
 interface ImageItemProps {
-  data: typeof PROJECT_UNIVERSE[0];
+  data: ProjectItem;
   position: [number, number, number];
   rotation: [number, number, number];
   index: number;
-  onClick: (data: typeof PROJECT_UNIVERSE[0]) => void;
+  onClick: (data: ProjectItem) => void;
 }
 
 // --- Error Boundary for 3D Content ---
@@ -35,12 +45,62 @@ class ImageErrorBoundary extends React.Component<{ children: React.ReactNode, fa
 
 // --- 3D Components ---
 
-const FallbackPlaceholder = ({ position, rotation }: { position: any, rotation: any }) => (
-  <mesh position={position} rotation={rotation}>
-    <planeGeometry args={[2, 1.125]} />
-    <meshStandardMaterial color="#334155" wireframe />
-  </mesh>
-);
+// A stylish "Error" card in 3D
+const FallbackPlaceholder = ({ position, rotation }: { position: any, rotation: any }) => {
+    return (
+        <group position={position} rotation={rotation}>
+            {/* Tech Frame Cross */}
+            <mesh rotation={[0,0,Math.PI/4]}>
+                <boxGeometry args={[1.5, 0.05, 0.05]} />
+                <meshBasicMaterial color="#334155" />
+            </mesh>
+            <mesh rotation={[0,0,-Math.PI/4]}>
+                <boxGeometry args={[1.5, 0.05, 0.05]} />
+                <meshBasicMaterial color="#334155" />
+            </mesh>
+            <mesh>
+                 <planeGeometry args={[2, 1.1]} />
+                 <meshBasicMaterial color="#0f172a" transparent opacity={0.8} />
+            </mesh>
+        </group>
+    );
+};
+
+// Tech Corner Bracket Geometry
+const TechCorners = ({ hovered }: { hovered: boolean }) => {
+    const color = hovered ? "#8b5cf6" : "#475569";
+    const w = 1.05; // half width
+    const h = 0.6; // half height
+    const s = 0.2; // bracket size
+    
+    // Define corner points for 4 brackets
+    const points = useMemo(() => {
+       // Top Left
+       const tl = [[-w, h-s, 0], [-w, h, 0], [-w+s, h, 0]];
+       // Top Right
+       const tr = [[w-s, h, 0], [w, h, 0], [w, h-s, 0]];
+       // Bottom Right
+       const br = [[w, -h+s, 0], [w, -h, 0], [w-s, -h, 0]];
+       // Bottom Left
+       const bl = [[-w+s, -h, 0], [-w, -h, 0], [-w, -h+s, 0]];
+       return [tl, tr, br, bl] as [number, number, number][][];
+    }, []);
+
+    return (
+        <group>
+            {points.map((p, i) => (
+                <Line
+                    key={i}
+                    points={p}
+                    color={color}
+                    lineWidth={hovered ? 2 : 1}
+                    transparent
+                    opacity={hovered ? 1 : 0.6}
+                />
+            ))}
+        </group>
+    )
+}
 
 const FloatingImage = ({ data, position, rotation, index, onClick }: ImageItemProps) => {
   const ref = useRef<any>(null);
@@ -56,39 +116,40 @@ const FloatingImage = ({ data, position, rotation, index, onClick }: ImageItemPr
   return (
     <group position={position} rotation={rotation}>
       <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
-        {/* Glow Frame */}
-        <mesh position={[0, 0, -0.05]} scale={hovered ? 1.05 : 1}>
-           <planeGeometry args={[2.1, 1.2]} />
-           <meshBasicMaterial color={hovered ? "#8b5cf6" : "#334155"} transparent opacity={0.5} />
-        </mesh>
-
-        <Image 
+        <group 
             ref={ref}
-            url={data.url} 
-            transparent 
-            side={THREE.DoubleSide}
-            scale={hovered ? [2.2, 1.23] : [2, 1.125]} 
             onPointerOver={() => { document.body.style.cursor = 'pointer'; setHover(true); }}
             onPointerOut={() => { document.body.style.cursor = 'auto'; setHover(false); }}
             onClick={(e) => {
                 e.stopPropagation();
                 onClick(data);
             }}
-            toneMapped={false} // Important for bloom
-        />
+        >
+            {/* Tech Corners instead of backing plane */}
+            <TechCorners hovered={hovered} />
+
+            {/* The Image */}
+            <Image 
+                url={data.url} 
+                transparent 
+                side={THREE.DoubleSide}
+                scale={[2, 1.125]} 
+                toneMapped={false} // Important for bloom
+            />
+        </group>
       </Float>
     </group>
   );
 };
 
-const GalaxyScene = ({ onItemClick }: { onItemClick: (data: typeof PROJECT_UNIVERSE[0]) => void }) => {
+const GalaxyScene = ({ projects, onItemClick }: { projects: ProjectItem[], onItemClick: (data: ProjectItem) => void }) => {
   const groupRef = useRef<THREE.Group>(null);
   
   // Create random spherical positions
   const items = useMemo(() => {
-    return PROJECT_UNIVERSE.map((item, i) => {
-      const phi = Math.acos(-1 + (2 * i) / PROJECT_UNIVERSE.length);
-      const theta = Math.sqrt(PROJECT_UNIVERSE.length * Math.PI) * phi;
+    return projects.map((item, i) => {
+      const phi = Math.acos(-1 + (2 * i) / projects.length);
+      const theta = Math.sqrt(projects.length * Math.PI) * phi;
       
       const radius = 6;
       const x = radius * Math.cos(theta) * Math.sin(phi);
@@ -101,7 +162,7 @@ const GalaxyScene = ({ onItemClick }: { onItemClick: (data: typeof PROJECT_UNIVE
         rotation: [0, -theta, 0] as [number, number, number]
       };
     });
-  }, []);
+  }, [projects]);
 
   return (
     <>
@@ -137,7 +198,28 @@ const GalaxyScene = ({ onItemClick }: { onItemClick: (data: typeof PROJECT_UNIVE
 // --- Main Component ---
 
 const ProjectUniverse: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState<typeof PROJECT_UNIVERSE[0] | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
+  const [projects, setProjects] = useState<ProjectItem[]>(DEFAULT_PROJECTS);
+  const [imgError, setImgError] = useState(false);
+
+  // Dynamic Data Fetching
+  useEffect(() => {
+     const fetchProjects = async () => {
+         try {
+             const response = await fetch(ASSETS.data.universe);
+             if(response.ok) {
+                 const json = await response.json();
+                 // Basic validation to ensure it's an array
+                 if (Array.isArray(json) && json.length > 0) {
+                    setProjects(json);
+                 }
+             }
+         } catch(e) {
+             console.log("Using default project universe data");
+         }
+     }
+     fetchProjects();
+  }, []);
 
   return (
     <section id="project-universe" className="relative h-[85vh] w-full bg-slate-950 overflow-hidden border-t border-slate-900">
@@ -160,7 +242,7 @@ const ProjectUniverse: React.FC = () => {
                 minPolarAngle={Math.PI / 4}
                 maxPolarAngle={Math.PI / 1.5}
             />
-            <GalaxyScene onItemClick={setSelectedProject} />
+            <GalaxyScene projects={projects} onItemClick={setSelectedProject} />
             
             {/* Post Processing Effects */}
             <EffectComposer enableNormalPass={false}>
@@ -193,21 +275,26 @@ const ProjectUniverse: React.FC = () => {
                             <X size={24} />
                         </button>
 
-                        {/* Image Side */}
-                        <div className="md:w-3/5 bg-black relative">
-                            <img 
-                                src={selectedProject.url} 
-                                alt={selectedProject.title}
-                                className="w-full h-full object-contain md:object-cover bg-slate-950"
-                                onError={(e) => {
-                                    e.currentTarget.src = "https://picsum.photos/800/600";
-                                }}
-                            />
+                        {/* Image Side - With Fallback */}
+                        <div className="md:w-3/5 bg-black relative flex items-center justify-center bg-slate-950">
+                            {!imgError ? (
+                                <img 
+                                    src={selectedProject.url} 
+                                    alt={selectedProject.title}
+                                    className="w-full h-full object-contain md:object-cover"
+                                    onError={() => setImgError(true)}
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center text-slate-600">
+                                     <AlertOctagon size={48} className="mb-2 opacity-50" />
+                                     <span className="text-xs font-mono border border-slate-700 px-2 py-1">IMG_DATA_CORRUPT</span>
+                                </div>
+                            )}
                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent md:bg-gradient-to-r" />
                         </div>
 
                         {/* Content Side */}
-                        <div className="md:w-2/5 p-8 flex flex-col justify-center">
+                        <div className="md:w-2/5 p-8 flex flex-col justify-center overflow-y-auto">
                             <h3 className="text-2xl font-bold text-white mb-2">{selectedProject.title}</h3>
                             
                             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -233,9 +320,25 @@ const ProjectUniverse: React.FC = () => {
                             </p>
 
                             <div className="mt-8">
-                                <button className="text-sm font-mono text-slate-500 hover:text-white transition-colors cursor-not-allowed">
-                                    // VIEW_SOURCE_CODE (Private)
-                                </button>
+                                {selectedProject.link ? (
+                                    <a 
+                                        href={selectedProject.link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-4 py-2 bg-game-accent hover:bg-violet-600 text-white rounded transition-colors"
+                                    >
+                                        <ExternalLink size={16} className="mr-2" />
+                                        查看详情 (View Project)
+                                    </a>
+                                ) : (
+                                    <button 
+                                        disabled
+                                        className="inline-flex items-center px-4 py-2 bg-slate-800 text-slate-500 rounded cursor-not-allowed border border-slate-700"
+                                    >
+                                        <Lock size={16} className="mr-2" />
+                                        内部项目 (Internal Access Only)
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </motion.div>

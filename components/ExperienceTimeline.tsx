@@ -1,8 +1,29 @@
-import React from 'react';
-import { EXPERIENCES } from '../constants';
+
+import React, { useState, useEffect } from 'react';
+import { EXPERIENCES as DEFAULT_EXPERIENCES, ASSETS } from '../constants';
 import { Briefcase } from 'lucide-react';
+import { Experience } from '../types';
 
 const ExperienceTimeline: React.FC = () => {
+  const [experiences, setExperiences] = useState<Experience[]>(DEFAULT_EXPERIENCES);
+
+  useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        const response = await fetch(ASSETS.data.experiences);
+        if (response.ok) {
+          const json = await response.json();
+          if (Array.isArray(json) && json.length > 0) {
+            setExperiences(json);
+          }
+        }
+      } catch (e) {
+        // Silent fail
+      }
+    };
+    fetchExperiences();
+  }, []);
+
   return (
     <section id="experience" className="py-20 bg-slate-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,7 +32,7 @@ const ExperienceTimeline: React.FC = () => {
         </div>
 
         <div className="relative border-l border-slate-700 ml-4 md:ml-10 space-y-12">
-          {EXPERIENCES.map((exp, index) => (
+          {experiences.map((exp, index) => (
             <div key={index} className="relative pl-8 md:pl-12">
               {/* Dot */}
               <div className="absolute -left-3 top-1 w-6 h-6 rounded-full bg-slate-900 border-2 border-game-accent flex items-center justify-center">

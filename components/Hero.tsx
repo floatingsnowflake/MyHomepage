@@ -1,23 +1,38 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PERSONAL_INFO, ASSETS } from '../constants';
-import { Github, Mail, ExternalLink } from 'lucide-react';
+import { Github, Mail } from 'lucide-react';
 
 const Hero: React.FC = () => {
+  const [bgError, setBgError] = useState(false);
+
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-950">
-      {/* Background Layer - Simulated Video/Image */}
+      {/* Background Layer */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-950 z-10" />
-        <img 
-          src={ASSETS.placeholders.heroBg} 
-          onError={(e) => {
-             // Fallback to a dark color or generic placeholder if local file missing
-             e.currentTarget.style.display = 'none';
-          }}
-          alt="Background" 
-          className="w-full h-full object-cover opacity-40"
-        />
+        
+        {!bgError ? (
+          <img 
+            src={ASSETS.placeholders.heroBg} 
+            onError={() => setBgError(true)}
+            alt="Background" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        ) : (
+          /* Minimalist Fallback Pattern */
+          <div className="w-full h-full opacity-20 bg-slate-900">
+             <svg width="100%" height="100%">
+               <defs>
+                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#475569" strokeWidth="0.5"/>
+                 </pattern>
+               </defs>
+               <rect width="100%" height="100%" fill="url(#grid)" />
+             </svg>
+          </div>
+        )}
       </div>
 
       <div className="relative z-20 max-w-7xl mx-auto px-4 text-center sm:px-6 lg:px-8">

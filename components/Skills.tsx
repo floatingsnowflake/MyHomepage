@@ -1,10 +1,29 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { SKILLS } from '../constants';
+import { SKILLS as DEFAULT_SKILLS, ASSETS } from '../constants';
 import { Skill } from '../types';
 
 const Skills: React.FC = () => {
+  const [skills, setSkills] = useState<Skill[]>(DEFAULT_SKILLS);
   const categories = ['Core', 'System', 'Tools', 'Other'];
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await fetch(ASSETS.data.skills);
+        if (response.ok) {
+          const json = await response.json();
+          if (Array.isArray(json) && json.length > 0) {
+            setSkills(json);
+          }
+        }
+      } catch (e) {
+        // Silent fail, use default
+      }
+    };
+    fetchSkills();
+  }, []);
 
   return (
     <section id="skills" className="py-20 bg-slate-950">
@@ -21,7 +40,7 @@ const Skills: React.FC = () => {
                 {cat}
               </h3>
               <div className="space-y-4">
-                {SKILLS.filter(s => s.category === cat).map((skill) => (
+                {skills.filter(s => s.category === cat).map((skill) => (
                   <SkillBar key={skill.name} skill={skill} />
                 ))}
               </div>
