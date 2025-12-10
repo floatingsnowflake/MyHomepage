@@ -40,7 +40,7 @@ export const ASSETS = {
     interests: `${GITHUB_RAW_BASE}/data/interests`,
     skills: `${GITHUB_RAW_BASE}/data/skills`,
     experiences: `${GITHUB_RAW_BASE}/data/experiences`,
-    freelanceShowcase: `${GITHUB_RAW_BASE}/data/freelance_showcase.json`,
+    freelanceShowcase: `${GITHUB_RAW_BASE}/data/freelance_showcase`,
     music: `${GITHUB_RAW_BASE}/data/music.json`
   }
 };

@@ -66,14 +66,14 @@ const ShowcaseItem = ({ item, onClick }: { item: FreelanceItem, onClick: () => v
 }
 
 const FreelanceStats: React.FC = () => {
-  const { content } = useLanguage();
+  const { content, lang } = useLanguage();
   const [showcaseItems, setShowcaseItems] = useState<FreelanceItem[]>(FREELANCE_SHOWCASE_DATA);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchShowcase = async () => {
       try {
-        const response = await fetch(ASSETS.data.freelanceShowcase);
+        const response = await fetch(`${ASSETS.data.freelanceShowcase}_${lang}.json`);
         if (response.ok) {
           const json = await response.json();
           if (Array.isArray(json) && json.length > 0) {
@@ -85,7 +85,7 @@ const FreelanceStats: React.FC = () => {
       }
     };
     fetchShowcase();
-  }, []);
+  }, [lang]);
 
   return (
     <section id="freelance" className="py-20 bg-slate-950 border-t border-slate-900">

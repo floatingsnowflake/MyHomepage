@@ -21,60 +21,66 @@ const MusicPlayer: React.FC = () => {
   const [playlist, setPlaylist] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Fetch playlist on mount
+  // Fetch playlist on mount and Auto-Play
   useEffect(() => {
     const fetchPlaylist = async () => {
+        let list = DEFAULT_MUSIC_PLAYLIST;
         try {
             const response = await fetch(ASSETS.data.music);
             if (response.ok) {
                 const data = await response.json();
                 if (Array.isArray(data) && data.length > 0) {
-                    setPlaylist(data);
-                    return;
+                    list = data;
                 }
             }
         } catch (e) {
             console.warn("Failed to load remote music playlist, using default.");
         }
-        setPlaylist(DEFAULT_MUSIC_PLAYLIST);
+        setPlaylist(list);
+        // Intent: Auto-play immediately upon loading
+        setIsPlaying(true);
     };
     fetchPlaylist();
   }, []);
 
-  // Handle auto-play when playlist is loaded
+  // Centralized Playback Control with Policy Handling
   useEffect(() => {
-    if (playlist.length > 0 && audioRef.current) {
-      audioRef.current.volume = 0.3; // Default volume 30%
-      
-      // Attempt auto-play
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch((error) => {
-            console.log("Autoplay prevented by browser. User interaction required.");
-            setIsPlaying(false);
-          });
-      }
-    }
-  }, [playlist]);
+    if (!audioRef.current || playlist.length === 0) return;
 
-  // Handle Play/Pause toggle
-  useEffect(() => {
-    if (audioRef.current && playlist.length > 0) {
-      if (isPlaying) {
+    // Ensure volume
+    if (audioRef.current.volume !== 0.3) audioRef.current.volume = 0.3;
+
+    if (isPlaying) {
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
            playPromise.catch(e => {
-               // Ignore abort errors caused by rapid toggling
-               if (e.name !== 'AbortError') console.error("Playback error:", e);
+               // If blocked by browser policy (NotAllowedError), we revert UI to paused
+               // BUT we attach a one-time listener to the document to start it on first user interaction
+               if (e.name === 'NotAllowedError') {
+                   console.warn("Auto-play blocked. Waiting for user interaction.");
+                   setIsPlaying(false);
+                   
+                   const handleInteraction = () => {
+                       // Resume playback state on first click/key/touch
+                       setIsPlaying(true);
+                       // Clean up listeners
+                       document.removeEventListener('click', handleInteraction);
+                       document.removeEventListener('keydown', handleInteraction);
+                       document.removeEventListener('touchstart', handleInteraction);
+                   };
+
+                   // Listen for any interaction
+                   document.addEventListener('click', handleInteraction);
+                   document.addEventListener('keydown', handleInteraction);
+                   document.addEventListener('touchstart', handleInteraction);
+               } else {
+                   // Other errors (e.g. load interrupt) are ignored to prevent UI flickering
+                   console.debug("Playback interrupted", e);
+               }
            });
         }
-      } else {
+    } else {
         audioRef.current.pause();
-      }
     }
   }, [isPlaying, currentTrackIndex, playlist]);
 
@@ -84,6 +90,7 @@ const MusicPlayer: React.FC = () => {
 
   const playNext = () => {
     if (playlist.length === 0) return;
+    setLoadError(false);
     setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
     setIsPlaying(true);
   };
@@ -103,6 +110,8 @@ const MusicPlayer: React.FC = () => {
       if (playlist.length === 0) return;
       console.warn(`Failed to load track: ${playlist[currentTrackIndex]}`);
       setLoadError(true);
+      // Optional: Auto-skip on error
+      // setTimeout(() => playNext(), 1000); 
   };
 
   const getTrackName = (url: string) => {
@@ -115,7 +124,6 @@ const MusicPlayer: React.FC = () => {
     }
   };
 
-  // Safe guard: Do not render controls if playlist isn't ready, but hooks above must run.
   if (playlist.length === 0) return null;
 
   return (
@@ -159,7 +167,7 @@ const MusicPlayer: React.FC = () => {
             exit={{ x: -50, opacity: 0 }}
             className="flex items-center bg-slate-900/90 backdrop-blur-xl border border-slate-700 rounded-full p-2 pr-6 shadow-[0_0_20px_rgba(0,0,0,0.6)]"
           >
-            {/* Album Art / Visualizer Placeholder */}
+            {/* Visualizer / Art */}
             <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 border ${isPlaying ? 'border-game-secondary bg-game-secondary/10' : 'border-slate-700 bg-slate-800'}`}>
                 {isPlaying ? (
                      <div className="flex gap-[2px] items-end h-4">
@@ -177,11 +185,11 @@ const MusicPlayer: React.FC = () => {
                 )}
             </div>
 
-            {/* Controls & Info */}
+            {/* Controls */}
             <div className="flex flex-col mr-4 min-w-[120px]">
                 <div className="flex items-center justify-between mb-1">
                      <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase truncate max-w-[100px]">
-                        {loadError ? "LOAD ERROR" : getTrackName(playlist[currentTrackIndex])}
+                        {loadError ? "ERR_LOAD" : getTrackName(playlist[currentTrackIndex])}
                      </span>
                 </div>
                 
@@ -199,7 +207,7 @@ const MusicPlayer: React.FC = () => {
                 </div>
             </div>
 
-            {/* Minimize Button */}
+            {/* Minimize */}
             <button 
                 onClick={() => setIsMinimized(true)}
                 className="p-1.5 hover:bg-slate-800 rounded-full text-slate-500 hover:text-white transition"
