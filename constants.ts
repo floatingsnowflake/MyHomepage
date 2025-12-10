@@ -40,7 +40,8 @@ export const ASSETS = {
     interests: `${GITHUB_RAW_BASE}/data/interests`,
     skills: `${GITHUB_RAW_BASE}/data/skills`,
     experiences: `${GITHUB_RAW_BASE}/data/experiences`,
-    freelanceShowcase: `${GITHUB_RAW_BASE}/data/freelance_showcase.json`
+    freelanceShowcase: `${GITHUB_RAW_BASE}/data/freelance_showcase.json`,
+    music: `${GITHUB_RAW_BASE}/data/music.json`
   }
 };
 
@@ -152,3 +153,9 @@ export const FREELANCE_STATS: Stat[] = [
 ];
 
 export const FREELANCE_SHOWCASE_DATA: FreelanceItem[] = [];
+
+export const DEFAULT_MUSIC_PLAYLIST = [
+    `${GITHUB_RAW_BASE}/assets/music/bgm_1.mp3`,
+    `${GITHUB_RAW_BASE}/assets/music/bgm_2.mp3`,
+    `${GITHUB_RAW_BASE}/assets/music/bgm_3.mp3`
+];

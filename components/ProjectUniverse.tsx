@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useMemo, Suspense, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -8,6 +7,21 @@ import { PROJECT_UNIVERSE as DEFAULT_PROJECTS, ASSETS } from '../constants';
 import { X, Tag, Calendar, AlertOctagon, ExternalLink, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../utils/LanguageContext';
+
+// Fix for missing R3F types in JSX
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: any;
+      mesh: any;
+      boxGeometry: any;
+      meshBasicMaterial: any;
+      planeGeometry: any;
+      ambientLight: any;
+      pointLight: any;
+    }
+  }
+}
 
 // --- Types ---
 interface ProjectItem {

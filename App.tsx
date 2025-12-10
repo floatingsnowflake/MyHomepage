@@ -9,6 +9,7 @@ import FreelanceStats from './components/FreelanceStats';
 import ProjectUniverse from './components/ProjectUniverse';
 import Gallery from './components/Gallery';
 import Footer from './components/Footer';
+import MusicPlayer from './components/MusicPlayer';
 import { LanguageProvider } from './utils/LanguageContext';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Gallery />
           </main>
           <Footer />
+          <MusicPlayer />
         </div>
     </LanguageProvider>
   );
