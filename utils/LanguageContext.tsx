@@ -44,12 +44,30 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         const res = await fetch(url);
         if (res.ok) {
             const json = await res.json();
-            // Merge with default to ensure no missing keys crash the app
-            setContent(prev => ({ ...prev, ...json }));
+            
+            // Perform a semi-deep merge to prevent nested objects (like questSystem) 
+            // from being wiped out by a partial override of their parent section (like minghai)
+            setContent(prev => {
+              const newContent = { ...prev };
+              
+              for (const key in json) {
+                if (Object.prototype.hasOwnProperty.call(json, key)) {
+                  const typedKey = key as keyof SiteContent;
+                  if (typeof json[typedKey] === 'object' && json[typedKey] !== null && !Array.isArray(json[typedKey])) {
+                    // Deep merge one level for sections
+                    newContent[typedKey] = {
+                      ...(prev[typedKey] as object),
+                      ...(json[typedKey] as object)
+                    } as any;
+                  } else {
+                    newContent[typedKey] = json[typedKey];
+                  }
+                }
+              }
+              
+              return newContent;
+            });
         } else {
-            // Fallback to default if fetch fails, but if default is ZH and we want EN, 
-            // we might be stuck. Ideally default content should be separated if critical.
-            // For now, we assume ZH is default fallback.
             console.warn(`Failed to fetch content for ${targetLang}, reverting to default.`);
             if (targetLang === 'zh') setContent(DEFAULT_CONTENT);
         }
@@ -70,7 +88,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         url.searchParams.set('lang', newLang);
         window.history.pushState({}, '', url);
     } catch (e) {
-        // Ignored: Likely running in a sandboxed environment (blob URL) where pushState is restricted
         console.debug("Skipped URL update due to environment restrictions", e);
     }
 

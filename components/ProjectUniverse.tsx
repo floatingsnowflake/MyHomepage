@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, Suspense, useEffect } from 'react';
 import * as THREE from 'three';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
 import { Image, Stars, Float, Sparkles, OrbitControls, Line } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { PROJECT_UNIVERSE as DEFAULT_PROJECTS, ASSETS } from '../constants';
@@ -8,18 +8,19 @@ import { X, Tag, Calendar, AlertOctagon, ExternalLink, Lock } from 'lucide-react
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../utils/LanguageContext';
 
-// Fix for missing R3F types in JSX
+// Fix for missing R3F types in JSX by extending the intrinsic elements with ThreeElements.
+// This ensures that tags like <group>, <mesh>, etc. are recognized by the TypeScript compiler
+// across different environment configurations (React 18+, Vite, etc.).
 declare global {
   namespace JSX {
-    interface IntrinsicElements {
-      group: any;
-      mesh: any;
-      boxGeometry: any;
-      meshBasicMaterial: any;
-      planeGeometry: any;
-      ambientLight: any;
-      pointLight: any;
-    }
+    interface IntrinsicElements extends ThreeElements {}
+  }
+}
+
+// Additional augmentation for the React namespace to ensure coverage.
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements extends ThreeElements {}
   }
 }
 

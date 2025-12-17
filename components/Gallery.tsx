@@ -34,7 +34,9 @@ const Gallery: React.FC = () => {
             const response = await fetch(url);
             if (response.ok) {
                 const json = await response.json();
-                setData(json);
+                if (json && typeof json === 'object') {
+                    setData(json);
+                }
             }
         } catch (error) {
             console.log("Using default interests data (Network/Parse error)");
@@ -42,6 +44,8 @@ const Gallery: React.FC = () => {
     };
     fetchData();
   }, [lang]);
+
+  if (!data) return null;
 
   return (
     <section className="py-24 bg-slate-900 relative overflow-hidden">
@@ -57,14 +61,14 @@ const Gallery: React.FC = () => {
         <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4 flex items-center justify-center gap-3">
                 <Heart className="text-red-500 fill-red-500 animate-pulse" />
-                <span>{data.title}</span>
+                <span>{data.title || 'Interests'}</span>
             </h2>
             <p className="text-slate-400 max-w-3xl mx-auto text-lg leading-relaxed">
                 {data.description}
             </p>
             
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-                {data.tags.map((tag, i) => (
+                {data.tags && data.tags.map((tag, i) => (
                     <span key={i} className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-sm text-game-secondary">
                         # {tag}
                     </span>
@@ -106,7 +110,7 @@ const Gallery: React.FC = () => {
         
         <div className="mt-8 text-center">
             <p className="text-slate-500 italic text-sm">
-              {content.gallery.quote}
+              {content?.gallery?.quote}
             </p>
         </div>
       </div>

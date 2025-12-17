@@ -63,6 +63,19 @@ export interface SiteContent {
     internal_btn: string;
     features: string[]; // Moved here
     tags: string[];
+    questSystem: {
+      title: string;
+      subtitle: string;
+      intro: string;
+      architecture: string;
+      nodes: {
+        static: { name: string; desc: string };
+        runtime: { name: string; desc: string };
+        logic: { name: string; desc: string };
+        event: { name: string; desc: string };
+      };
+      highlights: string[];
+    };
   };
   skills: {
     title: string;

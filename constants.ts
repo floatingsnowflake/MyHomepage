@@ -76,7 +76,24 @@ export const DEFAULT_CONTENT: SiteContent = {
       "Cinemachine 动态相机系统",
       "高度模块化的任务与对话架构"
     ],
-    tags: ["Unity 2021+", "C#", "MemoryPack", "Cinemachine", "UGUI"]
+    tags: ["Unity 2021+", "C#", "MemoryPack", "Cinemachine", "UGUI"],
+    questSystem: {
+      title: "仿 MMO 高扩展任务系统",
+      subtitle: "架构解析: 工厂模式 + 策略模式 + 数据驱动",
+      intro: "在《命骸》中我实现了一套支持多种任务类型和复杂子任务逻辑的系统，核心解决了可扩展性与存档持久化的痛点。",
+      architecture: "系统架构图",
+      nodes: {
+        static: { name: "QuestData (静态配置)", desc: "只读配置，包含任务描述、奖励及 TaskData 列表，类似 MMO 任务表。" },
+        runtime: { name: "QuestInfo (运行时实例)", desc: "玩家接取后生成的动态数据，维护状态、接收时间并广播事件给子任务。" },
+        logic: { name: "TaskBase (逻辑基类)", desc: "核心抽象。利用多态实现 KillTask、TalkTask 等，支持 MemoryPack 高性能存档。" },
+        event: { name: "QuestChangeInfo (解耦事件)", desc: "轻量级事件包 (Dictionary<string, object>)，使任务系统与战斗、背包系统完全解耦。" }
+      },
+      highlights: [
+        "开闭原则：新增子任务类型只需继承 TaskBase，零侵入现有逻辑",
+        "极致性能：结合 MemoryPack 序列化，实现百万级任务状态秒级存取",
+        "高度解耦：QuestChangeInfo 驱动，任务进度不依赖具体业务函数"
+      ]
+    }
   },
   skills: {
     title: '技术栈与能力',

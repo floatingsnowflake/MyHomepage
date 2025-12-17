@@ -5,6 +5,7 @@ import { ASSETS, PERSONAL_INFO } from '../constants';
 import { ExternalLink, Zap } from 'lucide-react';
 import { useLanguage } from '../utils/LanguageContext';
 import Lightbox from './Lightbox';
+import QuestSystemDetail from './QuestSystemDetail';
 
 // Reusable Fallback Component
 const MinimalistFallback = ({ label }: { label?: string }) => (
@@ -137,6 +138,9 @@ const ProjectMinghai: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Technical Deep Dive Section */}
+        <QuestSystemDetail />
       </div>
     </section>
   );
