@@ -5,7 +5,8 @@ import { ASSETS, PERSONAL_INFO } from '../constants';
 import { ExternalLink, Zap } from 'lucide-react';
 import { useLanguage } from '../utils/LanguageContext';
 import Lightbox from './Lightbox';
-import QuestSystemDetail from './QuestSystemDetail';
+import SaveSystemPPT from './SaveSystemPPT';
+import DialogSystemDetail from './DialogSystemDetail';
 
 // Reusable Fallback Component
 const MinimalistFallback = ({ label }: { label?: string }) => (
@@ -33,20 +34,17 @@ const ProjectMinghai: React.FC = () => {
   const [videoError, setVideoError] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
-  // Features are now directly loaded from the content JSON (i18n supported)
   const features = content.minghai.features || [];
   const tags = content.minghai.tags || [];
 
   return (
     <section id="minghai" className="py-24 bg-slate-900 relative overflow-hidden">
-      {/* Lightbox Overlay */}
       <Lightbox 
         src={lightboxSrc} 
         onClose={() => setLightboxSrc(null)} 
         alt="Minghai Project Screenshot"
       />
 
-      {/* Decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-violet-900/10 to-transparent pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -57,7 +55,6 @@ const ProjectMinghai: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          {/* Media Column - Video Slot */}
           <div className="space-y-6">
             <div className="relative group rounded-xl overflow-hidden border-2 border-slate-700/50 bg-black shadow-2xl aspect-video">
                {!videoError ? (
@@ -84,7 +81,6 @@ const ProjectMinghai: React.FC = () => {
               )}
             </div>
 
-            {/* Thumbnail Grid */}
             <div className="grid grid-cols-4 gap-4">
               {ASSETS.minghai.gallery.map((src, index) => (
                 <Thumbnail 
@@ -97,7 +93,6 @@ const ProjectMinghai: React.FC = () => {
             </div>
           </div>
 
-          {/* Info Column */}
           <div>
             <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700 backdrop-blur-sm">
               <p 
@@ -139,8 +134,11 @@ const ProjectMinghai: React.FC = () => {
           </div>
         </div>
 
-        {/* Technical Deep Dive Section */}
-        <QuestSystemDetail />
+        {/* Save & Load System High-End Presentation (PPT Style) */}
+        <SaveSystemPPT />
+
+        {/* Dialog System Deep Dive */}
+        <DialogSystemDetail />
       </div>
     </section>
   );

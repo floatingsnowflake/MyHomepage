@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useMemo, Suspense, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
@@ -8,19 +9,14 @@ import { X, Tag, Calendar, AlertOctagon, ExternalLink, Lock } from 'lucide-react
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../utils/LanguageContext';
 
-// Fix for missing R3F types in JSX by extending the intrinsic elements with ThreeElements.
+// Fix for missing R3F types in JSX by extending the intrinsic elements.
 // This ensures that tags like <group>, <mesh>, etc. are recognized by the TypeScript compiler
-// across different environment configurations (React 18+, Vite, etc.).
+// in modern React environments by nesting under React.JSX.
 declare global {
-  namespace JSX {
-    interface IntrinsicElements extends ThreeElements {}
-  }
-}
-
-// Additional augmentation for the React namespace to ensure coverage.
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements extends ThreeElements {}
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements extends ThreeElements {}
+    }
   }
 }
 
@@ -42,13 +38,23 @@ interface ImageItemProps {
   onClick: (data: ProjectItem) => void;
 }
 
+// Fix: Define interfaces for class component to resolve state/props property access errors
+interface ImageErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+}
+
+interface ImageErrorBoundaryState {
+  hasError: boolean;
+}
+
 // --- Error Boundary for 3D Content ---
-class ImageErrorBoundary extends React.Component<{ children: React.ReactNode, fallback: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: any) {
+class ImageErrorBoundary extends React.Component<ImageErrorBoundaryProps, ImageErrorBoundaryState> {
+  constructor(props: ImageErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(_: any) {
     return { hasError: true };
   }
   render() {

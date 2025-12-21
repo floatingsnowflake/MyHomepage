@@ -35,7 +35,8 @@ const QuestSystemDetail: React.FC = () => {
           </div>
           
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-            {qs.nodes && Object.entries(qs.nodes).map(([key, node], index) => {
+            {/* Fix: Explicitly cast Object.entries to provide typing for 'node' properties */}
+            {qs.nodes && (Object.entries(qs.nodes) as [string, { name: string; desc: string }][]).map(([key, node], index) => {
               const Icon = nodeIcons[key as keyof typeof nodeIcons] || Code2;
               return (
                 <motion.div 

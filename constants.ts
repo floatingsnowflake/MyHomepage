@@ -2,12 +2,8 @@
 import { Project, Experience, Skill, Stat, SiteContent, FreelanceItem } from './types';
 import { Bug, Zap, Layers, Gamepad2 } from 'lucide-react';
 
-// Base URL for Assets
 export const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/floatingsnowflake/MyHomepageAssets/main/public";
 
-/**
- * ASSET CONFIGURATION
- */
 export const ASSETS = {
   avatar: `${GITHUB_RAW_BASE}/assets/images/avatar.jpg`, 
   minghai: {
@@ -29,14 +25,10 @@ export const ASSETS = {
         `${GITHUB_RAW_BASE}/assets/images/interest_3.jpg`
     ]
   },
-  // Data file paths for dynamic loading
   data: {
-    // Content JSONs (The skeleton text)
     content_zh: `${GITHUB_RAW_BASE}/data/content_zh.json`,
     content_en: `${GITHUB_RAW_BASE}/data/content_en.json`,
-    
-    // Dynamic Lists (Lang suffix will be handled in code)
-    universe: `${GITHUB_RAW_BASE}/data/project_universe`, // becomes _zh.json or _en.json
+    universe: `${GITHUB_RAW_BASE}/data/project_universe`,
     interests: `${GITHUB_RAW_BASE}/data/interests`,
     skills: `${GITHUB_RAW_BASE}/data/skills`,
     experiences: `${GITHUB_RAW_BASE}/data/experiences`,
@@ -45,7 +37,6 @@ export const ASSETS = {
   }
 };
 
-// Default Chinese Content (Fallback)
 export const DEFAULT_CONTENT: SiteContent = {
   nav: {
     home: '首页',
@@ -77,21 +68,109 @@ export const DEFAULT_CONTENT: SiteContent = {
       "高度模块化的任务与对话架构"
     ],
     tags: ["Unity 2021+", "C#", "MemoryPack", "Cinemachine", "UGUI"],
-    questSystem: {
-      title: "仿 MMO 高扩展任务系统",
-      subtitle: "架构解析: 工厂模式 + 策略模式 + 数据驱动",
-      intro: "在《命骸》中我实现了一套支持多种任务类型和复杂子任务逻辑的系统，核心解决了可扩展性与存档持久化的痛点。",
-      architecture: "系统架构图",
+    saveSystem: {
+      title: "高性能可视化存档加载系统",
+      subtitle: "架构专题: MemoryPack + AES + 编辑器预收集技术",
+      nav: { prev: "上一页", next: "下一页" },
+      slides: [
+        {
+          title: "系统概览与核心亮点",
+          desc: "针对复杂 3D 横版 RPG 打造的存档架构，重点解决存档对象丢失与加载性能瓶颈。",
+          points: [
+             "可存档对象全可视化：编辑器内一键查重与校验",
+             "极致性能：基于 MemoryPack 二进制序列化",
+             "无缝加载：数据驱动更新，无需重新加载场景",
+             "高安全性：AES 加密防止玩家非法篡改数据"
+          ],
+          techTag: "Architecture Overview"
+        },
+        {
+          title: "GameStartSetting (ScriptableObject)",
+          desc: "负责主菜单与游戏场景的解耦通信，是存档流程的“第一驱动力”。",
+          points: [
+            "判定流程：区分 [New Game] 或 [Load Game]",
+            "上下文传递：携带存档索引 (SaveIndex) 与初始场景名",
+            "状态持久：作为全局配置文件在跨场景中保持唯一性"
+          ],
+          techTag: "SO Communication"
+        },
+        {
+          title: "GameData (数据实体模型)",
+          desc: "存放游戏运行时的所有快照数据，采用 MemoryPack 进行二进制化压缩。",
+          points: [
+            "玩家状态：位置、朝向、血量、蓝量、属性",
+            "世界状态：机关触发情况、地图索引、Boss 活跃状态",
+            "系统状态：背包、任务列表、进度计数器"
+          ],
+          techTag: "MemoryPack DTO"
+        },
+        {
+          title: "ISave 接口与编辑器工具",
+          desc: "规范化存档行为，通过 InterfaceCollector 工具在编辑器阶段完成对象绑定。",
+          points: [
+            "ISave 定义：每个存档对象需拥有唯一字符串 ID",
+            "InterfaceCollector：编辑器内一键搜集场景中所有 ISave 对象",
+            "校验机制：自动检测 ID 重复或不合规的继承关系",
+            "性能优势：避免运行时的 OnEnable/Disable 动态注册开销"
+          ],
+          techTag: "Editor Tooling"
+        },
+        {
+          title: "ISaveList 与 Bridge 机制",
+          desc: "负责将编辑器搜集到的静态接口列表转化为运行时的交互实例。",
+          points: [
+            "解耦设计：相比传统单体脚本更简便，降低脚本复杂性",
+            "初始化流程：关卡开始时由初始化系统将列表注入 GameDataManager",
+            "静态存储：保证在序列化加载时能瞬间匹配对应 ID 实例"
+          ],
+          techTag: "System Bridge"
+        },
+        {
+          title: "GameDataManager (运行时中枢)",
+          desc: "处理所有保存与加载逻辑，管理存档路径与文件后缀常量。",
+          points: [
+            "保存逻辑：遍历 ISaveList 调用 Save() 填充 GameData 后持久化",
+            "加载逻辑：调用本地反序列化获取 GameData，通过 ID 映射回传数据",
+            "场景无感：数据注入后直接更新 Object 状态，无需 Scene Reload"
+          ],
+          techTag: "Runtime Engine"
+        },
+        {
+          title: "DataManager (底层加密 IO)",
+          desc: "静态类实现，基于 MemoryPack 负责数据类与本地物理文件的安全转换。",
+          points: [
+            "泛型设计：支持任意类型的 DataClass 自动序列化",
+            "AES 加密：集成 AES 加密流，确保存档文件的安全性",
+            "极致速度：MemoryPack 的高性能使百万级数据几乎瞬间落盘"
+          ],
+          techTag: "Low-level IO"
+        },
+        {
+          title: "总结：对比传统方案",
+          desc: "为什么我们不采用常见的 MStudio 或 PlayerPrefs 方案？",
+          points: [
+            "比 PlayerPrefs 更规范：结构化数据，易于维护",
+            "比 Runtime 搜集更稳健：编辑器预校验，杜绝运行时空指针",
+            "比传统 JSON 更高效：MemoryPack 体积更小，解析快 5-10 倍",
+            "扩展性：新增存档对象只需点一下编辑器按钮，零代码变动"
+          ],
+          techTag: "Optimization Result"
+        }
+      ]
+    },
+    dialogSystem: {
+      title: "高扩展对话与行为系统",
+      subtitle: "架构解析: 类 DNF MMO 逻辑 + Galgame 触发机制",
       nodes: {
-        static: { name: "QuestData (静态配置)", desc: "只读配置，包含任务描述、奖励及 TaskData 列表，类似 MMO 任务表。" },
-        runtime: { name: "QuestInfo (运行时实例)", desc: "玩家接取后生成的动态数据，维护状态、接收时间并广播事件给子任务。" },
-        logic: { name: "TaskBase (逻辑基类)", desc: "核心抽象。利用多态实现 KillTask、TalkTask 等，支持 MemoryPack 高性能存档。" },
-        event: { name: "QuestChangeInfo (解耦事件)", desc: "轻量级事件包 (Dictionary<string, object>)，使任务系统与战斗、背包系统完全解耦。" }
+        config: { name: "DialogConfig (数据驱动)", desc: "基于 ScriptableObject，支持 SpeakerData (立绘/情绪) 与 DialogData 的多维映射。" },
+        logic: { name: "DialogManager (状态机控制)", desc: "管理 None/对话/打字/选择四种状态，通过正则解析 condStr 实现动态条件匹配。" },
+        action: { name: "ActionHandler (工厂+策略)", desc: "IDialogActionHandler 接口实现。支持接受任务、移除物品、立绘震动、切片视频播放等 20+ 种行为。" },
+        eval: { name: "CondGroup (嵌套布尔逻辑)", desc: "底层工具类。支持复杂的 (A & B) | !C 嵌套逻辑评估，广泛应用于任务接取与 NPC 状态更新。" }
       },
       highlights: [
-        "开闭原则：新增子任务类型只需继承 TaskBase，零侵入现有逻辑",
-        "极致性能：结合 MemoryPack 序列化，实现百万级任务状态秒级存取",
-        "高度解耦：QuestChangeInfo 驱动，任务进度不依赖具体业务函数"
+        "类 DNF MMO：支持一个 NPC 同时发布/引导/处理多个任务对话，按优先级排序。",
+        "高度解耦：DialogActionHandlerFactory 动态解析行为，UI 层与业务层零耦合。",
+        "Galgame 体验：支持分支选项、立绘情绪切换、音效同步及屏幕震动等沉浸式指令。"
       ]
     }
   },
@@ -105,7 +184,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   freelance: {
     title: '闲鱼',
     title_highlight: 'Unity 外包战士',
-    desc: '自2024年以来，我在闲鱼平台累计处理超过 3,800+ 单 Unity 相关问题。这不仅是数字，更是处理过数千个不同项目架构、不同Bug类型的经验积累。无论是大语言模型对接、无人机仿真，还是传统的2D/3D游戏开发，我都拥有极速定位问题和解决问题的能力。',
+    desc: '自2024年以来，我在闲鱼平台累计处理超过 3,800+ 单 Unity 相关问题。',
     tags: ["数据可视化", "3D钓鱼", "车企UI交互", "人脸识别"]
   },
   universe: {
@@ -130,7 +209,6 @@ export const PERSONAL_INFO = {
   steamLink: "https://store.steampowered.com/app/3007510/_/"
 };
 
-// Default Fallback Data (Will be replaced by fetch)
 export const PROJECT_UNIVERSE = [
   { 
     url: `${GITHUB_RAW_BASE}/assets/images/universe/proj_1.jpg`,

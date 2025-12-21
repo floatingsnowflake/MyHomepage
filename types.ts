@@ -1,4 +1,5 @@
 
+
 export interface Skill {
   name: string;
   level: number; // 1-100
@@ -36,7 +37,6 @@ export interface FreelanceItem {
   description?: string;
 }
 
-// Interface for the entire text content of the site (for i18n)
 export interface SiteContent {
   nav: {
     home: string;
@@ -58,16 +58,37 @@ export interface SiteContent {
     subtitle: string;
     title: string;
     video_label: string;
-    desc_html: string; // Allow simple HTML like <b>
+    desc_html: string;
     steam_btn: string;
     internal_btn: string;
-    features: string[]; // Moved here
+    features: string[];
     tags: string[];
-    questSystem: {
+    saveSystem: {
       title: string;
       subtitle: string;
-      intro: string;
-      architecture: string;
+      slides: {
+        title: string;
+        desc: string;
+        points: string[];
+        techTag?: string;
+      }[];
+      nav: { prev: string; next: string };
+    };
+    dialogSystem: {
+      title: string;
+      subtitle: string;
+      nodes: {
+        config: { name: string; desc: string };
+        logic: { name: string; desc: string };
+        action: { name: string; desc: string };
+        eval: { name: string; desc: string };
+      };
+      highlights: string[];
+    };
+    // Fix: Added missing questSystem definition to match the data structure used in the component
+    questSystem?: {
+      title: string;
+      subtitle: string;
       nodes: {
         static: { name: string; desc: string };
         runtime: { name: string; desc: string };

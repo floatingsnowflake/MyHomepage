@@ -33,7 +33,8 @@ const MechaFallback = () => (
   </div>
 );
 
-const ShowcaseItem = ({ item, onClick }: { item: FreelanceItem, onClick: () => void }) => {
+// Fix: Use React.FC to properly handle component props and avoid key assignment errors in the parent loop
+const ShowcaseItem: React.FC<{ item: FreelanceItem, onClick: () => void }> = ({ item, onClick }) => {
     const [error, setError] = useState(false);
     
     return (
